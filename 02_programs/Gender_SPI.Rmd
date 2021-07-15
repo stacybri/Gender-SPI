@@ -1,0 +1,114 @@
+---
+title: 'Measuring the Availability of Gender Data using the Statistical Performance Indicators (SPI) Framework'
+author: ""
+date: "`r Sys.Date()`"
+output:
+  bookdown::word_document2: 
+    toc: yes
+    fig_width: 9
+    fig_height: 6
+abstract: ''
+bibliography: ./bibliography.bib
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6, fig.path = "plots/", dev = c("png"), dpi=500)
+
+
+library(tidyverse)
+library(flextable)
+library(here)
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgcharts")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbggeo")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgmaps")
+# library(wbggeo)
+# library(wbgmaps)
+library(ggthemes)
+library(Hmisc)
+library(httr)
+library(patchwork)
+library(ggrepel)
+library(haven)
+library(zoo)
+library(estimatr)
+library(ggpmisc)
+library(ggthemes)
+library(ggtext)
+#set directories
+dir <- here()
+
+raw_dir <- paste(dir, '01_raw_data', sep="/")
+output_dir <- paste(dir, '03_output_data', sep="/")
+
+#weights (either unity (1) or population (2))
+wgt <- 1
+
+```
+
+
+```{r themes}
+
+#ggplot theme
+theme_spi <- function () { 
+    theme_bw() %+replace%
+    theme(
+      plot.caption = element_text(hjust = 0),
+      plot.title=element_blank() #remove all titles from plots (sometimes we may need to bring title outside plot)
+    )
+}
+
+
+```
+
+
+# Introduction
+
+The [2030 Agenda for Sustainable Development](https://sdgs.un.org/2030agenda) lays out an ambitious agenda for achieving gender equality and empowering all women and girls. This agenda, adopted by nearly all countries, is paired with a set of goals and targets, with concrete indicators, for meeting that agenda.
+
+
+
+The rationale for the index set out in the discussion paper is:
+The World Bank is looking for an updated index that will be useful for decision making in the context of the upcoming World Development Report. It is looking for an index that will be valuable to
+a.	the World Bank collectively as it makes decisions about funding. In particular it will be looking for the index to help it make assessments of how much it can rely on country data when it compares the effectiveness of alternative courses of action. This includes decisions about investments in statistics and data. A particular element of this is to drill down into the data to understand whether particular areas of interest (eg economy, society, environment) are better measured than others. Associated with this is the requirement to track improvements in statistical capacity and performance over time in order to help assess the effectiveness of investments made.
+b.	World Bank Country Directors as they assess the position in country. The index needs to help Country Directors judge how much they can rely on currently available data for their country of interest, identify what steps need to be taken to improve reliability and find good practice from other countries from which their country of interest might learn. The index should help countries focus and prioritize on important areas of statistical capacity and data gaps.  
+c.	other stakeholders including national governments, partners and donors.
+The discussion paper also set out criteria for the index on the basis of this rationale:
+(i)	to accommodate the rapid evolution of the data ecosystem, encompassing many more partners than just the National Statistical Office; and 
+(ii)	to facilitate action to improve the capability and performance of the statistical system (or part of the system). 
+The Advisory Committee wanted more detail on the rationale. I think this can be boiled down into a variety of users all asking the same questions:
+1.	can I rely on the data and statistics coming out of the statistical system of country X?
+2.	what does that country need to improve?
+3.	are they getting any better?
+4.	how can we judge whether statistical capacity building initiatives have done any good (what has been the return on investment)?
+
+
+Gender data gaps
+	- Idea would be to explore the sources of data gaps
+		- i.e. are specific surveys missing?  Is indicator tied to one data source?  Are there flaws with this source?
+	- Could develop a Gender-SPI franchise
+	- Other analysis
+
+Gender Data Gaps paper:
+
+Gender data gaps are quite vague.  Don't really know the sources, what are the root problems.  Existing literature is a bit superficial.
+
+Just need to think about 3-4 gaps that are the root of the problem.  This would be the contribution of the paper.
+
+Would be nice to connect to SPI.  Think about as a starting point.  Get eventually to a gender SPI.
+
+Are there some countries that are ranked high in SPI, but not highly in Gender.  Look at the countries that are doing well on reporting and SDG 5 + other gender relevant indicators.
+
+How much is due to overall commitment to statistics?  Versus how much is due to poor focus on gender specifically.  For instance, maybe gender statistics are bad because all statistics are bad.  
+Or else, maybe they have a good statistics system, but not a good commitment to gender statistics.
+
+Gender Data Sources: Standard household surveys, versus other types of surveys such as time use surveys.
+
+Gender Data Use: Can have something.  Need to think about this.
+
+Gender Data Infrastructure: Need to think about this.  Are there standardized classifications.  Big international discussion promoting standards on how gender disaggregation is done.
+
+
+Scatterplot of SDG 5 against overall SPI scores.  Data products.  Can also look at the WDI data.
+Take from John's notes on prospective indicators

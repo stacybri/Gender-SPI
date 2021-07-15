@@ -1,0 +1,482 @@
+---
+title: "SDG_pull"
+author: "Brian Stacy"
+date: "2/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning=FALSE, fig.height=7, fig.width=10)
+
+library(tidyverse)
+library(here)
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgdata")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgcharts")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbggeo")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgmaps")
+# library(wbggeo)
+# library(wbgmaps)
+library(ggthemes)
+library(Hmisc)
+library(httr)
+library(patchwork)
+library(ggrepel)
+library(lubridate)
+library(haven)
+library(zoo)
+library(readxl)
+library(flextable)
+#set directories
+dir <- here()
+
+raw_dir <- paste(dir, '01_rawdata', sep="/")
+output_dir <- paste(dir, '03_output_data', sep="/")
+
+#parameters
+upper_year = 2020
+lower_year = 2010
+window=upper_year-lower_year #set the window
+
+```
+
+```{r programs, include=FALSE}
+
+
+#For mapping the result
+# quality = "high"
+# maps <- wbgmaps::wbgmaps[[quality]]
+#load world bank map data
+load(paste0(raw_dir, '/misc/maps.Rdata'))
+standard_crop_wintri <- function() {
+  l <- list(
+    left=-12000000, right=16396891,
+    top=9400000, bottom=-6500000
+  )
+  l$xlim <- c(l$left, l$right)
+  l$ylim <- c(l$bottom, l$top)
+  l
+}
+
+country_metadata <- wbstats::wb_countries() %>%
+  filter(region!="Aggregates")
+
+#read list of iso3c codes for matching from UN (https://unstats.un.org/unsd/methodology/m49/)
+iso3c <- read_csv(paste(raw_dir,'metadata/iso_codes.csv', sep="/"),
+                  col_types=list(col_character(), col_character(), col_character()))
+
+span <- c(lower_year:upper_year)
+
+#now create dataframe for merging from 2004 to 2019
+iso_empty <- bind_rows(replicate(length(span), iso3c, simplify = FALSE), .id='date') %>%
+  mutate(date=as.numeric(date)+span[1]-1) %>%
+  select(iso3c, date, geoAreaCode) 
+
+sdg_mapper  <- function(data, indicator, title) {
+  
+ indicator<-indicator
+
+ 
+ 
+  map_df <- get(data) %>%
+    filter(between(date,lower_year,upper_year) ) %>%
+    filter(code1==indicator) %>%
+    filter(!is.na(ind_quality)) %>%
+    group_by(iso3c, date, code) %>%
+    summarise(ind_quality=max(ind_quality, na.rm=T),
+              ind_value=mean(ind_value, na.rm=T),
+              ind_metadata=first(ind_metadata)) %>% #check if any values (even sub-indicators) for indicator
+    group_by(iso3c) %>%
+    summarise(ind_quality=sum(ind_quality, na.rm=T)) %>%
+    right_join(country_metadata) %>%
+    filter(!is.na(region))
+  
+
+   p1 <- ggplot() +
+    geom_map(data = map_df, aes(map_id = iso3c, fill = ind_quality), map = maps$countries) + 
+    geom_polygon(data = maps$disputed, aes(long, lat, group = group, map_id = id), fill = "grey80") + 
+    geom_polygon(data = maps$lakes, aes(long, lat, group = group), fill = "white")  +
+     geom_path(data = maps$boundaries,
+               aes(long, lat, group = group),
+               color = "white",
+               size = 0.1,
+               lineend = maps$boundaries$lineend,
+              linetype = maps$boundaries$linetype) +
+    scale_x_continuous(expand = c(0, 0), limits = standard_crop_wintri()$xlim) +
+    scale_y_continuous(expand = c(0, 0), limits = standard_crop_wintri()$ylim) +
+  scale_fill_distiller(palette = "RdYlGn",
+                       direction=1)  +
+    coord_equal() +
+    theme_map(base_size=12) +
+    labs(
+      title=str_wrap(title,100),
+      subtitle= paste0('Number of Indicators Available ', lower_year,'-',upper_year),
+      caption = 'Source: UN Global SDG database. The figures show the availability of SDG indicators by country.',
+      fill= 'Indicator Availability'
+    )
+  
+  #add histogram by region 
+  p2 <- map_df %>%
+    group_by(region) %>%
+    filter(region!='Aggregates') %>%
+    mutate(Score=mean(ind_quality),
+           Label = paste(round(Score,0))) %>%
+    ggplot(aes(x=Score, y=region, fill=region)) +
+      geom_bar(stat="identity",position='dodge') +
+      geom_text(aes(label=Label)) +
+      labs(
+      title=str_wrap(paste(title, 'By Region', sep=" - "),100),
+      caption = 'Source: UNSD',
+      subtitle= paste0('Number of Indicators Available ', lower_year,'-',upper_year),
+      fill= 'Indicator Availability'
+      ) + 
+      expand_limits(x=c(0,window)) +
+      theme_bw() 
+#add histogram by region 
+
+  p3 <- map_df %>%
+    group_by(income_level) %>%
+    filter(region!='Aggregates') %>%
+    mutate(Score=mean(ind_quality),
+           Label = paste(round(Score,0))) %>%
+    ggplot(aes(x=Score, y=income_level, fill=income_level)) +
+      geom_bar(stat="identity",position='dodge') +
+      geom_text(aes(label=Label)) +
+      labs(
+      title=str_wrap(paste(title, 'By Income', sep=" - "),100),
+      caption = 'Source: UNSD',
+      subtitle= paste0('Number of Indicators Available ', lower_year,'-',upper_year),
+      fill= 'Indicator Availability'
+      ) +
+      expand_limits(x=c(0,window)) +
+      theme_bw()  
+    
+  # #add line graph over time
+  p4 <- get(data)  %>% 
+    filter(code1==indicator) %>%
+    left_join(country_metadata) %>%
+    group_by(region,  date) %>%
+    mutate(Score=sum(ind_quality, na.rm=T),
+           Label = paste(round(Score,0))) %>%
+    ungroup() %>%
+    ggplot(aes(y=Score, x=date, color=region)) +
+      geom_point() +
+      geom_line(fill='blue') +
+      # geom_text_repel(aes(label=Label)) +
+      labs(
+      title=str_wrap(paste(title, 'By Date', sep=" - "),100),
+      caption = 'Source: UNSD'
+      ) +
+      expand_limits(y=c(0,window)) +
+      theme_bw()
+      
+  print(p1)
+  
+  print(p2)
+  
+  print(p3)
+
+  print(p4)
+
+  assign(paste("sdg",indicator,"df", sep="_"),map_df)
+       
+}
+
+
+#define function to pull data from UN Stats and return
+un_pull <- function(series,start, end) {
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+      jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+
+    as_tibble() %>%
+    mutate(date=timePeriodStart) %>%
+    right_join(iso3c)
+    
+}  
+
+
+
+```
+
+```{r un_indicators}
+
+#get a list of all SDG indicators
+indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
+
+#SDG 4.1.1, 4.2.1, 4.5.1, 4.6.1
+indicators_list <- c('SE_TOT_PRFL', #4.1.1 Proportion of children and young people achieving a minimum proficiency level in reading and mathematics (%)
+                     'SE_DEV_ONTRK', # 4.2.1 Proportion of children aged 36−59 months who are developmentally on track in at least three of the following domains: literacy-numeracy, physical development, social-emotional development, and learning (% of children aged 36-59 months)
+                     'SE_GPI_PTNPRE', # 4.5.1 Gender parity index for participation rate in organized learning (one year before the official primary entry age), (ratio)
+                     'SE_GPI_ICTS', # 4.5.1 Gender parity index for youth/adults with information and communications technology (ICT) skills, by type of skill (ratio)
+                     'SE_NAP_ACHI', #4.5.1 Native parity index for achievement (ratio)
+                     'SE_LGP_ACHI', # 4.5.1 Language test parity index for achievement (ratio)
+                     'SE_TOT_GPI', # 4.5.1 Gender parity index for achievement (ratio)
+                     'SE_ADT_FUNS' # 4.6.1 Proportion of population achieving at least a fixed level of proficiency in functional skills, by sex, age and type of skill (%)
+                     )
+
+#bring in the list of indicators
+list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
+  as_tibble() %>%
+  unnest(keep_empty = TRUE)
+
+list_df <- list_df %>%
+  filter(tier==1) %>% # keep just the tier 1 indicators %>%
+  filter(code1 %in% indicators_list) 
+  # group_by(code) %>%
+  # filter(row_number()==1)
+
+```
+
+```{r api_download, echo=FALSE}
+
+# now we will loop through the list of indicators and download the SDG databases
+
+#define function to pull data from UN Stats and return
+un_pull <- function(series,start, end) {
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+      jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+
+    as_tibble() %>%
+    mutate(date=timePeriodStart) %>%
+    right_join(iso_empty) %>%
+    mutate(available=!is.na(value),  #check whether indicator is available
+           quality=case_when(
+             (available & attributes.Nature=='C') ~ 1,
+             (available & attributes.Nature=='CA') ~ 1,
+             (available & (attributes.Nature=='E' | attributes.Nature=='G')) ~ 1,
+             (available & attributes.Nature=='M') ~ 1,
+             !available ~ 0
+           )) %>%
+    group_by(date) %>%
+    mutate(available_year=(max(available, na.rm=T)==1),
+           quality=if_else(available_year==FALSE,as.numeric(NA),quality)) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
+    group_by(iso3c, date) %>%
+    summarise(ind_value=mean(as.numeric(value), na.rm=T),
+              ind_metadata=first(attributes.Nature),
+              ind_quality=mean(quality, na.rm=T)
+              ) 
+}  
+
+
+
+list_df<- list_df[seq(dim(list_df)[1],1),]
+
+#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
+for (series in list_df$code1) {
+  tryCatch({
+  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
+    print(series)
+
+
+  #Sys.sleep(60)
+    #create a temporary database that will have the value, metadata info, and quality measure for each year and couuntry.
+    indicators_df <- list_df %>%
+      filter(code1==series) %>%
+      mutate(
+      values = map(
+        code1,
+        un_pull,'2000','2020' )
+      ) %>%
+      unnest(values) %>%
+      select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
+      write_excel_csv(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))
+
+  }
+
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+
+}
+
+
+
+
+```
+
+
+```{r sdg411}
+
+ sdg_411_df <- jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=','SE_TOT_PRFL','&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+
+    as_tibble() %>%
+    mutate(date=timePeriodStart) %>%
+    right_join(iso_empty) %>%
+    mutate(available=!is.na(value),  #check whether indicator is available
+           quality=case_when(
+             (available & attributes.Nature=='C') ~ 1,
+             (available & attributes.Nature=='CA') ~ 1,
+             (available & (attributes.Nature=='E' | attributes.Nature=='G')) ~ 1,
+             (available & attributes.Nature=='M') ~ 1,
+             !available ~ 0
+           )) %>%
+    group_by(date) %>%
+    mutate(available_year=(max(available, na.rm=T)==1),
+           quality=if_else(available_year==FALSE,as.numeric(NA),quality),
+           education_level=`dimensions.Education level`) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
+    group_by(education_level, iso3c, date) %>%
+    summarise(ind_value=mean(as.numeric(value), na.rm=T),
+              ind_metadata=first(attributes.Nature),
+              ind_quality=mean(quality, na.rm=T)
+              ) 
+
+#grade 2/3
+sdg_411_df %>%
+  filter(education_level=="GRAD23" | is.na(education_level)) %>%
+  mutate(code1='SE_TOT_PRFL_GRAD23') %>%
+  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_GRAD23','.csv',sep=""))
+
+#PRIMARY
+sdg_411_df %>%
+  filter(education_level=="PRIMAR" | is.na(education_level)) %>%
+  mutate(code1='SE_TOT_PRFL_PRIMAR') %>%
+  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_PRIMAR','.csv',sep=""))
+
+#LOWSEC
+sdg_411_df %>%
+  filter(education_level=="LOWSEC" | is.na(education_level)) %>%
+  mutate(code1='SE_TOT_PRFL_LOWSEC') %>%
+  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_LOWSEC','.csv',sep=""))
+
+```
+
+
+```{r save}
+
+#list of series
+series_list <- c("SE_ADT_FUNS",
+                 "SE_TOT_GPI",
+                 "SE_LGP_ACHI",
+                 "SE_NAP_ACHI",
+                 "SE_GPI_ICTS",
+                 "SE_GPI_PTNPRE",
+                 "SE_DEV_ONTRK",
+                 "SE_TOT_PRFL_GRAD23",
+                 "SE_TOT_PRFL_PRIMAR",
+                 "SE_TOT_PRFL_LOWSEC")
+
+#remove this dataframe if it exists
+if (exists('un_sdg_df')) {
+  rm(un_sdg_df)
+}
+
+for (series in series_list) {
+    
+  #read in files
+  if (file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
+    temp <- read_csv(paste(raw_dir,'/sdg_data/',series,'.csv',sep="")) %>%
+      mutate(
+        code1=as.character(code1), 
+      )
+    
+    #   #now append it to the overall database
+    if (!exists('un_sdg_df')) {
+      un_sdg_df <- temp
+    } else if (exists('un_sdg_df')) {
+      un_sdg_df <- un_sdg_df %>%
+        bind_rows(temp)
+    }
+  }
+  
+}
+
+
+```
+
+# SDG 4.1.1a
+
+```{r sdg41a, echo=FALSE}
+
+temp <- un_sdg_df %>%
+  mutate(code=code1) 
+
+sdg_mapper('temp', 'SE_TOT_PRFL_GRAD23', "4.1.1a Proportion of children and young people in grade 2/3 achieving a minimum proficiency level in reading and mathematics (%)")
+
+
+
+
+```
+
+# SDG 4.1.1b
+
+```{r sdg41b, echo=FALSE}
+
+temp <- un_sdg_df %>%
+  mutate(code=code1) 
+
+sdg_mapper('temp', 'SE_TOT_PRFL_PRIMAR', "4.1.1b Proportion of children and young people at the end of primary achieving a minimum proficiency level in reading and mathematics (%)")
+
+
+
+
+```
+
+# SDG 4.1.1c
+
+```{r sdg41c, echo=FALSE}
+
+temp <- un_sdg_df %>%
+  mutate(code=code1)
+
+sdg_mapper('temp', 'SE_TOT_PRFL_LOWSEC', "4.1.1c Proportion of children and young people at the end of lower secondary achieving a minimum proficiency level in reading and mathematics (%)")
+
+
+
+
+```
+
+# SDG 4.2.1
+
+```{r sdg42, echo=FALSE}
+
+sdg_mapper('un_sdg_df', 'SE_DEV_ONTRK', "4.2.1 Proportion of children aged 36−59 months who are developmentally on track in at least three of the following domains: literacy-numeracy, physical development, social-emotional development, and learning (% of children aged 36-59 months)")
+
+
+          
+                     
+                     
+                     
+                     
+                     
+
+```
+
+# SDG 4.5.1
+
+```{r sdg45, echo=FALSE}
+
+
+
+sdg_mapper('un_sdg_df', 'SE_GPI_PTNPRE', "4.5.1 Gender parity index for participation rate in organized learning (one year before the official primary entry age), (ratio)")
+
+sdg_mapper('un_sdg_df', 'SE_GPI_ICTS', "4.5.1 Gender parity index for youth/adults with information and communications technology (ICT) skills, by type of skill (ratio)")
+
+sdg_mapper('un_sdg_df', 'SE_NAP_ACHI', "4.5.1 Native parity index for achievement (ratio)")
+
+sdg_mapper('un_sdg_df', 'SE_LGP_ACHI', "4.5.1 Language test parity index for achievement (ratio)")
+
+sdg_mapper('un_sdg_df', 'SE_TOT_GPI', "4.5.1 Gender parity index for achievement (ratio)")
+
+
+
+                     
+                     
+                     
+                     
+                     
+                     
+
+```
+
+# SDG 4.6.1
+
+```{r sdg46, echo=FALSE}
+
+
+sdg_mapper('un_sdg_df', 'SE_ADT_FUNS', "4.6.1 Proportion of population achieving at least a fixed level of proficiency in functional skills, by sex, age and type of skill (%)")
+
+                     
+                     
+                     
+                     
+                     
+                     
+
+```
