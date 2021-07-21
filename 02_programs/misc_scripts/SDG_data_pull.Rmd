@@ -29,7 +29,7 @@ library(flextable)
 #set directories
 dir <- here()
 
-raw_dir <- paste(dir, '01_rawdata', sep="/")
+raw_dir <- paste(dir, '01_raw_data', sep="/")
 output_dir <- paste(dir, '03_output_data', sep="/")
 
 #parameters
@@ -185,7 +185,7 @@ sdg_mapper  <- function(data, indicator, title) {
 #define function to pull data from UN Stats and return
 un_pull <- function(series,start, end) {
   # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
-      jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+      jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=30000',sep=""), flatten = TRUE)$data %>%
 
     as_tibble() %>%
     mutate(date=timePeriodStart) %>%
@@ -203,15 +203,9 @@ un_pull <- function(series,start, end) {
 indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
 
 #SDG 4.1.1, 4.2.1, 4.5.1, 4.6.1
-indicators_list <- c('SE_TOT_PRFL', #4.1.1 Proportion of children and young people achieving a minimum proficiency level in reading and mathematics (%)
-                     'SE_DEV_ONTRK', # 4.2.1 Proportion of children aged 36−59 months who are developmentally on track in at least three of the following domains: literacy-numeracy, physical development, social-emotional development, and learning (% of children aged 36-59 months)
-                     'SE_GPI_PTNPRE', # 4.5.1 Gender parity index for participation rate in organized learning (one year before the official primary entry age), (ratio)
-                     'SE_GPI_ICTS', # 4.5.1 Gender parity index for youth/adults with information and communications technology (ICT) skills, by type of skill (ratio)
-                     'SE_NAP_ACHI', #4.5.1 Native parity index for achievement (ratio)
-                     'SE_LGP_ACHI', # 4.5.1 Language test parity index for achievement (ratio)
-                     'SE_TOT_GPI', # 4.5.1 Gender parity index for achievement (ratio)
-                     'SE_ADT_FUNS' # 4.6.1 Proportion of population achieving at least a fixed level of proficiency in functional skills, by sex, age and type of skill (%)
-                     )
+indicators_list_df <- read_csv(paste0(raw_dir,"/misc/Gender_SDGs.csv")) 
+indicators_list <- indicators_list_df$Code
+
 
 #bring in the list of indicators
 list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
@@ -219,51 +213,106 @@ list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
   unnest(keep_empty = TRUE)
 
 list_df <- list_df %>%
-  filter(tier==1) %>% # keep just the tier 1 indicators %>%
+  filter(tier<=2) %>% # keep just the tier 1 & 2 indicators %>%
   filter(code1 %in% indicators_list) 
   # group_by(code) %>%
   # filter(row_number()==1)
 
 ```
 
+
+Download raw data
+```{r}
+for (series in list_df$code1) {
+    if (!file.exists(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep=""))) {
+    print(series)
+      tryCatch({
+        url <- "https://unstats.un.org/SDGAPI/v1/sdg/Series/DataCSV"
+        head <- add_headers(`Content-Type` = "application/x-www-form-urlencoded")
+        httr::POST(url, head, accept('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+                   body=paste0('seriesCodes=',series,'&timePeriodStart=,',lower_year,'&timePeriodEnd=',upper_year),
+                   #content_type_json(),
+                   write_disk(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep=""), overwrite=TRUE) )
+      }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+    }
+}
+
+```
+
+
 ```{r api_download, echo=FALSE}
 
 # now we will loop through the list of indicators and download the SDG databases
 
 #define function to pull data from UN Stats and return
+un_pull_sex_disag <- function(series,start, end) {
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+    read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
+    mutate(date=TimePeriod ,
+           sex=`[Sex]`,
+           Nature=`[Nature]`,
+           geoAreaCode =as.character(GeoAreaCode) ) %>%
+    left_join(iso3c) %>%
+    right_join(iso_empty) %>%
+    mutate(available=!is.na(Value),  #check whether indicator is available
+           quality=case_when(
+             (available & Nature=='C') ~ 1,
+             (available & Nature=='CA') ~ 1,
+             (available & (Nature=='E' | Nature=='G')) ~ 1,
+             (available & Nature=='M') ~ 1,
+             !available ~ 0
+           )) %>%
+    group_by(date, sex) %>%
+    mutate(available_year=(max(available, na.rm=T)==1),
+           quality=if_else(available_year==FALSE,as.numeric(NA),quality)) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
+    group_by(iso3c, date, sex) %>%
+    summarise(ind_value=mean(as.numeric(Value ), na.rm=T),
+              ind_metadata=first(Nature),
+              ind_quality=mean(quality, na.rm=T)
+              ) 
+}  
+
 un_pull <- function(series,start, end) {
   # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
-      jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
-
-    as_tibble() %>%
-    mutate(date=timePeriodStart) %>%
+    read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
+        mutate(date=TimePeriod,
+               Nature=`[Nature]`,
+           geoAreaCode =as.character(GeoAreaCode) ) %>%
+    left_join(iso3c) %>%
     right_join(iso_empty) %>%
-    mutate(available=!is.na(value),  #check whether indicator is available
+    mutate(available=!is.na(Value ),  #check whether indicator is available
            quality=case_when(
-             (available & attributes.Nature=='C') ~ 1,
-             (available & attributes.Nature=='CA') ~ 1,
-             (available & (attributes.Nature=='E' | attributes.Nature=='G')) ~ 1,
-             (available & attributes.Nature=='M') ~ 1,
+             (available & Nature=='C') ~ 1,
+             (available & Nature=='CA') ~ 1,
+             (available & (Nature=='E' | Nature=='G')) ~ 1,
+             (available & Nature=='M') ~ 1,
              !available ~ 0
            )) %>%
     group_by(date) %>%
     mutate(available_year=(max(available, na.rm=T)==1),
            quality=if_else(available_year==FALSE,as.numeric(NA),quality)) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
     group_by(iso3c, date) %>%
-    summarise(ind_value=mean(as.numeric(value), na.rm=T),
-              ind_metadata=first(attributes.Nature),
+    summarise(ind_value=mean(as.numeric(Value ), na.rm=T),
+              ind_metadata=first(Nature),
               ind_quality=mean(quality, na.rm=T)
               ) 
 }  
 
 
 
-list_df<- list_df[seq(dim(list_df)[1],1),]
 
-#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
-for (series in list_df$code1) {
+```
+
+Download sex disaggregated.
+```{r}
+
+list_gender_df <- list_df %>%
+  left_join(indicators_list_df %>% rename(code1=Code)) %>%
+  filter(Gender_Breakdown==1)
+
+for (series in list_gender_df$code1) {
   tryCatch({
-  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
+  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'_sex_disagg.csv',sep=""))) {
     print(series)
 
 
@@ -274,7 +323,51 @@ for (series in list_df$code1) {
       mutate(
       values = map(
         code1,
-        un_pull,'2000','2020' )
+        un_pull_sex_disag,'2010','2020' )
+      ) %>%
+      unnest(values) %>%
+      select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality, sex) %>%
+      write_excel_csv(paste(raw_dir,'/sdg_data/',series,'_sex_disagg.csv',sep=""))
+
+  }
+
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+
+}
+
+```
+
+
+
+Check if any info available
+
+```{r}
+
+list_df<- list_df[seq(dim(list_df)[1],1),]
+
+#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
+#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
+for (series in list_df$code1) {
+  tryCatch({
+  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
+    print(series)
+
+  # #get the raw data  
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=20000',sep=""), flatten = TRUE)$data %>%
+  #   as_tibble() %>%
+  #   mutate(date=timePeriodStart) %>%
+  #   right_join(iso_empty) %>%
+  #   mutate(across(is_list,as.character)) %>%
+  #  write_excel_csv(paste(raw_dir,'/sdg_data/',series,'_raw.csv',sep=""))
+  
+  #Sys.sleep(60)
+    #create a temporary database that will have the value, metadata info, and quality measure for each year and couuntry.
+    indicators_df <- list_df %>%
+      filter(code1==series) %>%
+      mutate(
+      values = map(
+        code1,
+        un_pull,'2010','2020' )
       ) %>%
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
@@ -285,198 +378,5 @@ for (series in list_df$code1) {
 }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
 
 }
-
-
-
-
-```
-
-
-```{r sdg411}
-
- sdg_411_df <- jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=','SE_TOT_PRFL','&pageSize=10000',sep=""), flatten = TRUE)$data %>%
-
-    as_tibble() %>%
-    mutate(date=timePeriodStart) %>%
-    right_join(iso_empty) %>%
-    mutate(available=!is.na(value),  #check whether indicator is available
-           quality=case_when(
-             (available & attributes.Nature=='C') ~ 1,
-             (available & attributes.Nature=='CA') ~ 1,
-             (available & (attributes.Nature=='E' | attributes.Nature=='G')) ~ 1,
-             (available & attributes.Nature=='M') ~ 1,
-             !available ~ 0
-           )) %>%
-    group_by(date) %>%
-    mutate(available_year=(max(available, na.rm=T)==1),
-           quality=if_else(available_year==FALSE,as.numeric(NA),quality),
-           education_level=`dimensions.Education level`) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
-    group_by(education_level, iso3c, date) %>%
-    summarise(ind_value=mean(as.numeric(value), na.rm=T),
-              ind_metadata=first(attributes.Nature),
-              ind_quality=mean(quality, na.rm=T)
-              ) 
-
-#grade 2/3
-sdg_411_df %>%
-  filter(education_level=="GRAD23" | is.na(education_level)) %>%
-  mutate(code1='SE_TOT_PRFL_GRAD23') %>%
-  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_GRAD23','.csv',sep=""))
-
-#PRIMARY
-sdg_411_df %>%
-  filter(education_level=="PRIMAR" | is.na(education_level)) %>%
-  mutate(code1='SE_TOT_PRFL_PRIMAR') %>%
-  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_PRIMAR','.csv',sep=""))
-
-#LOWSEC
-sdg_411_df %>%
-  filter(education_level=="LOWSEC" | is.na(education_level)) %>%
-  mutate(code1='SE_TOT_PRFL_LOWSEC') %>%
-  write_excel_csv(paste(raw_dir,'/sdg_data/','SE_TOT_PRFL_LOWSEC','.csv',sep=""))
-
-```
-
-
-```{r save}
-
-#list of series
-series_list <- c("SE_ADT_FUNS",
-                 "SE_TOT_GPI",
-                 "SE_LGP_ACHI",
-                 "SE_NAP_ACHI",
-                 "SE_GPI_ICTS",
-                 "SE_GPI_PTNPRE",
-                 "SE_DEV_ONTRK",
-                 "SE_TOT_PRFL_GRAD23",
-                 "SE_TOT_PRFL_PRIMAR",
-                 "SE_TOT_PRFL_LOWSEC")
-
-#remove this dataframe if it exists
-if (exists('un_sdg_df')) {
-  rm(un_sdg_df)
-}
-
-for (series in series_list) {
-    
-  #read in files
-  if (file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
-    temp <- read_csv(paste(raw_dir,'/sdg_data/',series,'.csv',sep="")) %>%
-      mutate(
-        code1=as.character(code1), 
-      )
-    
-    #   #now append it to the overall database
-    if (!exists('un_sdg_df')) {
-      un_sdg_df <- temp
-    } else if (exists('un_sdg_df')) {
-      un_sdg_df <- un_sdg_df %>%
-        bind_rows(temp)
-    }
-  }
-  
-}
-
-
-```
-
-# SDG 4.1.1a
-
-```{r sdg41a, echo=FALSE}
-
-temp <- un_sdg_df %>%
-  mutate(code=code1) 
-
-sdg_mapper('temp', 'SE_TOT_PRFL_GRAD23', "4.1.1a Proportion of children and young people in grade 2/3 achieving a minimum proficiency level in reading and mathematics (%)")
-
-
-
-
-```
-
-# SDG 4.1.1b
-
-```{r sdg41b, echo=FALSE}
-
-temp <- un_sdg_df %>%
-  mutate(code=code1) 
-
-sdg_mapper('temp', 'SE_TOT_PRFL_PRIMAR', "4.1.1b Proportion of children and young people at the end of primary achieving a minimum proficiency level in reading and mathematics (%)")
-
-
-
-
-```
-
-# SDG 4.1.1c
-
-```{r sdg41c, echo=FALSE}
-
-temp <- un_sdg_df %>%
-  mutate(code=code1)
-
-sdg_mapper('temp', 'SE_TOT_PRFL_LOWSEC', "4.1.1c Proportion of children and young people at the end of lower secondary achieving a minimum proficiency level in reading and mathematics (%)")
-
-
-
-
-```
-
-# SDG 4.2.1
-
-```{r sdg42, echo=FALSE}
-
-sdg_mapper('un_sdg_df', 'SE_DEV_ONTRK', "4.2.1 Proportion of children aged 36−59 months who are developmentally on track in at least three of the following domains: literacy-numeracy, physical development, social-emotional development, and learning (% of children aged 36-59 months)")
-
-
-          
-                     
-                     
-                     
-                     
-                     
-
-```
-
-# SDG 4.5.1
-
-```{r sdg45, echo=FALSE}
-
-
-
-sdg_mapper('un_sdg_df', 'SE_GPI_PTNPRE', "4.5.1 Gender parity index for participation rate in organized learning (one year before the official primary entry age), (ratio)")
-
-sdg_mapper('un_sdg_df', 'SE_GPI_ICTS', "4.5.1 Gender parity index for youth/adults with information and communications technology (ICT) skills, by type of skill (ratio)")
-
-sdg_mapper('un_sdg_df', 'SE_NAP_ACHI', "4.5.1 Native parity index for achievement (ratio)")
-
-sdg_mapper('un_sdg_df', 'SE_LGP_ACHI', "4.5.1 Language test parity index for achievement (ratio)")
-
-sdg_mapper('un_sdg_df', 'SE_TOT_GPI', "4.5.1 Gender parity index for achievement (ratio)")
-
-
-
-                     
-                     
-                     
-                     
-                     
-                     
-
-```
-
-# SDG 4.6.1
-
-```{r sdg46, echo=FALSE}
-
-
-sdg_mapper('un_sdg_df', 'SE_ADT_FUNS', "4.6.1 Proportion of population achieving at least a fixed level of proficiency in functional skills, by sex, age and type of skill (%)")
-
-                     
-                     
-                     
-                     
-                     
-                     
 
 ```
