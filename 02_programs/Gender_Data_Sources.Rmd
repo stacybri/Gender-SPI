@@ -200,26 +200,27 @@ Get the number of SDG indicators that can be produced by each data source
 ```{r sdgnum}
 
 
-sources_explained<-sources_categorized_df %>%
-  group_by(data_type, goal, target, code, description) %>%
-  summarise(n=n())
+sources_explained <-sources_categorized_df %>%
+  group_by(data_type, goal, target, code, description, description1) %>%
+  summarise(n=sum(n),
+            `First Named Source`=first(Source))
 
 ```
 
 
 
 ```{r sourcetab}
-source_df_long <- sources_df %>%
-  unnest(data)
+
 
 #use map to loop through SDG indicators and plot top 5 data sources for each indicator
 sources_df_tab_list <- sources_df$description1 
 
 sources_tab_fun <- function(variables) {
 
-   source_df_long %>%
+   sources_explained %>%
     filter(description1==variables) %>%
-    select(Source, n) %>%
+    rename(Source=data_type) %>%
+    select(Source, n, `First Named Source`) %>%
     rename(`Number of Times Used`=n) %>%
     flextable() %>% 
     add_header_lines(paste0("Top 10 indicator sources for Indicator: ", variables)) %>% 

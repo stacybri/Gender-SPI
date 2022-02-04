@@ -14,9 +14,16 @@ bibliography: ./bibliography.bib
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6, fig.path = "plots/", dev = c("png"), dpi=350)
-
-
+knitr::opts_chunk$set(
+	echo = FALSE,
+	fig.height = 6,
+	fig.path = "plots/",
+	fig.width = 9,
+	message = FALSE,
+	warning = FALSE,
+	dev = c("png"),
+	dpi = 350
+)
 library(tidyverse)
 library(flextable)
 library(here)
@@ -161,7 +168,9 @@ list_df %>%
     merge_v(j='Goal') %>%
     theme_vanilla() %>%
     add_footer_lines(values = "Source: UN."                 ) %>%
-  FitFlextableToPage()
+  FitFlextableToPage() %>%
+    autofit()
+  
 
 ```
 
@@ -1087,7 +1096,9 @@ disagg_tab_df %>%
     set_formatter( `Any Data Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
     theme_vanilla() %>%
     add_footer_lines(values = "Source: UN."                 ) %>%
-  FitFlextableToPage()
+  FitFlextableToPage() %>%
+    autofit()
+  
 
 
 
@@ -1230,7 +1241,7 @@ gender_overperformers_plot +
 
 In what will follow, the most common data sources for each of the SDG indicators in Table 1 will be discussed.  This can provide some guidance on the types of data sources that are typically used to report on these indicators, and reveal gaps that may exists for specific countries.  Data sources are based on the metadata in the [UN Global SDG Indicator Database](https://unstats.un.org/sdgs/indicators/database/).^[Data was pulled from the UN Global SDG Indicators database on July 19, 2021.]
 
-```{r sources, cache=TRUE}
+```{r sources, eval=FALSE, cache=TRUE, include=FALSE}
 
 #sdg raw data read function
 read_sdg_data  <- function(series) {
@@ -1241,8 +1252,7 @@ read_sdg_data  <- function(series) {
     arrange(n) %>%
     mutate(
       order=row_number(),
-      Source=factor(Source,levels=Source)) %>%
-    filter(order<=10)
+      Source=factor(Source,levels=Source)) 
   
 }
 
@@ -1253,9 +1263,52 @@ sources_df <- list_df %>%
     code1,read_sdg_data
   )) 
   
+save(sources_df, file = paste(raw_dir,'/sdg_data/SDG_sources.Rdata',sep=""))
+
+source_df_long <- sources_df %>%
+  unnest(data)
+```
+
+
+```{r loaddata}
+
+
+load(paste(raw_dir,'/sdg_data/SDG_sources.Rdata',sep=""))
+
+source_df_long <- sources_df %>%
+  unnest(data)
 
 ```
 
+
+```{r categorize}
+
+#use key words to categorize sources
+sources_categorized_df <- source_df_long %>%
+  mutate(
+        cap_source=str_to_title(Source),
+        data_type=case_when(
+            grepl('Demographic|DHS|Salud|Health Survey', Source)  ~ "Demographic and Health Survey",
+            grepl('Multiple Indicator|MICS', Source) ~ "MICS",
+            grepl('Living Standard|LSMS|Integrated|Hogares|hogares|Household Survey|Living Conditions|Household Budget|HIES|HS|Household Income|Poverty|Household Socio-Economic Survey', Source) ~ "Household Survey",
+            grepl('Administrative|ADM|Register|Registration|Vital Statistics', Source) ~ "Administrative Records",
+            grepl('NLA|TIMSS|PIRLS|National Learning|PISA|NAEP|EGRA|EGMA|PASEC|SACMEQ|Natinoal Assessment|LLECE', Source) ~ "Learning Assessment",
+            grepl('Labour|Labor|Earnings|LFS|Employment|Salaries|Wages', Source) ~ "Labor Force Survey",
+            grepl('Establishment Survey|ES -', Source) ~ "Establishment Survey",    
+            grepl('Census|censo|recensement', Source) ~ "Census",
+            grepl('Time Use|Time use|Use Of Time|Time', Source) ~ "Time Use Survey",
+            grepl('Statistical Yearbook|NSO|CSO|National Statistic|Ministry|Statistical Office|Bureau Of Statistics', Source) ~ "National Statistical Office",
+            grepl('World Bank|UNAIDS|UNESCO|ILO|WHO|World Health Organization|World Development Indicators|World Inequality Database|Eurostat|UNSD', Source) ~ "International Organization",
+            TRUE ~ "Other")
+    )
+
+sources_explained <-sources_categorized_df %>%
+  group_by(data_type, code, description, description1) %>%
+  summarise(n=sum(n),
+            `Example Source`=first(Source))
+
+
+```
 Now show a table for  the top 10 for each indicator.  In some cases, the sources are unique for each country.  In that case, a set of 5 are chosen.
 
 ```{r souceplot, eval=FALSE, fig.height=8, include=FALSE}
@@ -1288,114 +1341,321 @@ print(sources_df_plt$plot)
 ```
 
 
-
-
 ```{r sourcetab}
-source_df_long <- sources_df %>%
-  unnest(data)
+
 
 #use map to loop through SDG indicators and plot top 5 data sources for each indicator
 sources_df_tab_list <- sources_df$description1 
 
 sources_tab_fun <- function(variables) {
 
-   source_df_long %>%
+  sdg_code<- list_df[which(list_df$description1==variables),]$code
+   sources_explained %>%
+     ungroup() %>%
     filter(description1==variables) %>%
-    select(Source, n) %>%
+    rename(Source=data_type) %>%
+    select(Source, n, `Example Source`) %>%
     rename(`Number of Times Used`=n) %>%
     flextable() %>% 
-    add_header_lines(paste0("Top 10 indicator sources for Indicator: ", variables)) %>% 
+    add_header_lines(variables) %>%
+    add_header_lines(paste0("Indicator sources for SDG ", sdg_code,". ")) %>% 
     theme_vanilla() %>% 
     add_footer_lines(values = "Source: UN Global SDG Database.") %>% 
-    FitFlextableToPage() 
+    autofit()
   
     
   
 
 }
  
-
+sources_tab_fun(sources_df_tab_list[1])
 # for (i in c(1:length(sources_df_tab_list))) {
 #   sources_tab_fun(sources_df_tab_list[i])
 # 
 # }
- 
-sources_tab_fun(sources_df_tab_list[1])
+```
+
+```{r} 
+
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[2])
+```
+
+```{r} 
+
 sources_tab_fun(sources_df_tab_list[3])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[4])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[5])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[6])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[7])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[8])
+```
+
+```{r} 
+
 sources_tab_fun(sources_df_tab_list[9])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[10])
+```
 
+```{r} 
 sources_tab_fun(sources_df_tab_list[11])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[12])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[13])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[14])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[15])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[16])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[17])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[18])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[19])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[20])
+```
 
+```{r} 
 sources_tab_fun(sources_df_tab_list[21])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[22])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[23])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[24])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[25])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[26])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[27])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[28])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[29])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[30])
+```
 
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[31])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[32])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[33])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[34])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[35])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[36])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[37])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[38])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[39])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[40])
+```
 
+```{r} 
 sources_tab_fun(sources_df_tab_list[41])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[42])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[43])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[44])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[45])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[46])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[47])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[48])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[49])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[50])
+```
 
 
+```{r} 
 sources_tab_fun(sources_df_tab_list[51])
-sources_tab_fun(sources_df_tab_list[52])
-sources_tab_fun(sources_df_tab_list[53])
-sources_tab_fun(sources_df_tab_list[54])
-sources_tab_fun(sources_df_tab_list[55])
-sources_tab_fun(sources_df_tab_list[56])
-sources_tab_fun(sources_df_tab_list[57])
-sources_tab_fun(sources_df_tab_list[58])
-sources_tab_fun(sources_df_tab_list[59])
-sources_tab_fun(sources_df_tab_list[60])
+```
 
+```{r} 
+sources_tab_fun(sources_df_tab_list[52])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[53])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[54])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[55])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[56])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[57])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[58])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[59])
+```
+
+```{r} 
+sources_tab_fun(sources_df_tab_list[60])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[61])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[62])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[63])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[64])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[65])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[66])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[67])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[68])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[69])
+```
+
+```{r} 
 sources_tab_fun(sources_df_tab_list[70])
 ```
 
