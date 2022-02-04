@@ -1,0 +1,321 @@
+---
+title: 'Measuring the Availability of Gender Data using the Statistical Performance Indicators (SPI) Framework'
+author: ""
+date: "`r Sys.Date()`"
+output:
+  bookdown::word_document2: 
+    toc: yes
+    fig_width: 9
+    fig_height: 6
+abstract: ''
+bibliography: ./bibliography.bib
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.width = 9, fig.height = 6, fig.path = "plots/", dev = c("png"), dpi=350)
+
+
+library(tidyverse)
+library(flextable)
+library(here)
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgcharts")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbggeo")
+# devtools::install_github("worldbank/wbgviz", subdir = "wbgmaps")
+# library(wbggeo)
+# library(wbgmaps)
+library(ggthemes)
+library(Hmisc)
+library(httr)
+library(patchwork)
+library(ggrepel)
+library(haven)
+library(zoo)
+library(estimatr)
+library(ggpmisc)
+library(ggthemes)
+library(ggtext)
+#set directories
+dir <- here()
+
+raw_dir <- paste(dir, '01_raw_data', sep="/")
+output_dir <- paste(dir, '03_output_data', sep="/")
+
+#weights (either unity (1) or population (2))
+wgt <- 1
+
+```
+
+```{r programs}
+
+FitFlextableToPage <- function(ft, pgwidth = 6){
+
+  ft_out <- ft %>% 
+    autofit()
+
+  ft_out <- width(ft_out, width = dim(ft_out)$widths*pgwidth /(flextable_dim(ft_out)$widths))
+  return(ft_out)
+}
+
+#add equations to plots
+eq_plot_txt <- function(data) {
+  eq <- lm_robust(outcome ~ availability, data=data, se_type='HC2')
+  coef <- coef(eq)
+  std_err <- sqrt(diag(vcov(eq)))
+  r_2<- summary(eq)$r.squared
+  sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
+
+}
+```
+
+```{r themes}
+
+#ggplot theme
+theme_spi <- function () { 
+    theme_bw() %+replace%
+    theme(
+      plot.caption = element_text(hjust = 0),
+      plot.title=element_blank() #remove all titles from plots (sometimes we may need to bring title outside plot)
+    )
+}
+
+
+```
+
+
+
+# Data Sources for Gender Indicators
+
+In what will follow, the most common data sources for each of the SDG indicators in Table 1 will be discussed.  This can provide some guidance on the types of data sources that are typically used to report on these indicators, and reveal gaps that may exists for specific countries.  Data sources are based on the metadata in the [UN Global SDG Indicator Database](https://unstats.un.org/sdgs/indicators/database/).^[Data was pulled from the UN Global SDG Indicators database on July 19, 2021.]
+
+```{r sdggendf}
+#read in table about gender sdgs
+sdg_tab <- read_csv(file = paste0(raw_dir, '/misc/Gender_SDGs.csv')) 
+
+#get a list of all SDG indicators
+indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=30000'
+
+indicators_list <- sdg_tab$Code
+
+
+#bring in the list of indicators
+list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
+  as_tibble() %>%
+  unnest(keep_empty = TRUE)
+
+list_df <- list_df %>%
+  filter(tier<=2) %>% # keep just the tier 1 indicators %>%
+  filter(code1 %in% indicators_list) 
+
+# get list of tier 1 indicaors
+tier1_list <- list_df %>%
+  filter(tier==1)
+
+tier1_list <- tier1_list$code1
+
+# get list of tier 2 indicaors
+tier2_list <- list_df %>%
+  filter(tier==2)
+
+tier2_list <- tier2_list$code1
+
+#get goal
+sdg_tab$Goal <- as.character(map(strsplit(sdg_tab$SDG, split = "\\."), 1))
+
+gend_df_len <- nrow(list_df)
+
+```
+
+
+```{r sources, eval=FALSE, cache=TRUE, include=FALSE}
+
+#sdg raw data read function
+read_sdg_data  <- function(series) {
+  
+  read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
+    group_by(Source) %>%
+    summarise(n=n()) %>%
+    arrange(n) %>%
+    mutate(
+      order=row_number(),
+      Source=factor(Source,levels=Source)) 
+  
+}
+
+#create new dataset containing a list of data sources for each indicator
+sources_df <- list_df %>%
+  filter(!is.na(code1)) %>%
+  mutate(data=map(
+    code1,read_sdg_data
+  )) 
+  
+save(sources_df, file = paste(raw_dir,'/sdg_data/SDG_sources.Rdata',sep=""))
+
+source_df_long <- sources_df %>%
+  unnest(data)
+```
+
+
+```{r loaddata}
+
+
+load(paste(raw_dir,'/sdg_data/SDG_sources.Rdata',sep=""))
+
+source_df_long <- sources_df %>%
+  unnest(data)
+
+```
+
+
+```{r categorize}
+
+#use key words to categorize sources
+sources_categorized_df <- source_df_long %>%
+  mutate(
+        cap_source=str_to_title(Source),
+        data_type=case_when(
+            grepl('Demographic|DHS|Salud|Health Survey', Source)  ~ "Demographic and Health Survey",
+            grepl('Multiple Indicator|MICS', Source) ~ "MICS",
+            grepl('Living Standard|LSMS|Integrated|Hogares|hogares|Household Survey|Living Conditions|Household Budget|HIES|HS|Household Income|Poverty|Household Socio-Economic Survey', Source) ~ "Household Survey",
+            grepl('Administrative|ADM|Register|Registration|Vital Statistics', Source) ~ "Administrative Records",
+            grepl('NLA|TIMSS|PIRLS|National Learning|PISA|NAEP|EGRA|EGMA|PASEC|SACMEQ|Natinoal Assessment|LLECE', Source) ~ "Learning Assessment",
+            grepl('Labour|Labor|Earnings|LFS|Employment|Salaries|Wages', Source) ~ "Labor Force Survey",
+            grepl('Establishment Survey|ES -', Source) ~ "Establishment Survey",    
+            grepl('Census|censo|recensement', Source) ~ "Census",
+            grepl('Time Use|Time use|Use Of Time|Time', Source) ~ "Time Use Survey",
+            grepl('Statistical Yearbook|NSO|CSO|National Statistic|Ministry|Statistical Office|Bureau Of Statistics', Source) ~ "National Statistical Office",
+            grepl('World Bank|UNAIDS|UNESCO|ILO|WHO|World Health Organization|World Development Indicators|World Inequality Database|Eurostat|UNSD', Source) ~ "International Organization",
+            TRUE ~ "Other")
+    )
+
+sources_categorized_df %>%
+  group_by(data_type) %>%
+  summarise(n=n() )
+
+```
+
+Get the number of SDG indicators that can be produced by each data source
+
+```{r sdgnum}
+
+
+sources_explained<-sources_categorized_df %>%
+  group_by(data_type, goal, target, code, description) %>%
+  summarise(n=n())
+
+```
+
+
+
+```{r sourcetab}
+source_df_long <- sources_df %>%
+  unnest(data)
+
+#use map to loop through SDG indicators and plot top 5 data sources for each indicator
+sources_df_tab_list <- sources_df$description1 
+
+sources_tab_fun <- function(variables) {
+
+   source_df_long %>%
+    filter(description1==variables) %>%
+    select(Source, n) %>%
+    rename(`Number of Times Used`=n) %>%
+    flextable() %>% 
+    add_header_lines(paste0("Top 10 indicator sources for Indicator: ", variables)) %>% 
+    theme_vanilla() %>% 
+    add_footer_lines(values = "Source: UN Global SDG Database.") %>% 
+    FitFlextableToPage() 
+  
+    
+  
+
+}
+ 
+
+# for (i in c(1:length(sources_df_tab_list))) {
+#   sources_tab_fun(sources_df_tab_list[i])
+# 
+# }
+ 
+sources_tab_fun(sources_df_tab_list[1])
+sources_tab_fun(sources_df_tab_list[2])
+sources_tab_fun(sources_df_tab_list[3])
+sources_tab_fun(sources_df_tab_list[4])
+sources_tab_fun(sources_df_tab_list[5])
+sources_tab_fun(sources_df_tab_list[6])
+sources_tab_fun(sources_df_tab_list[7])
+sources_tab_fun(sources_df_tab_list[8])
+sources_tab_fun(sources_df_tab_list[9])
+sources_tab_fun(sources_df_tab_list[10])
+
+sources_tab_fun(sources_df_tab_list[11])
+sources_tab_fun(sources_df_tab_list[12])
+sources_tab_fun(sources_df_tab_list[13])
+sources_tab_fun(sources_df_tab_list[14])
+sources_tab_fun(sources_df_tab_list[15])
+sources_tab_fun(sources_df_tab_list[16])
+sources_tab_fun(sources_df_tab_list[17])
+sources_tab_fun(sources_df_tab_list[18])
+sources_tab_fun(sources_df_tab_list[19])
+sources_tab_fun(sources_df_tab_list[20])
+
+sources_tab_fun(sources_df_tab_list[21])
+sources_tab_fun(sources_df_tab_list[22])
+sources_tab_fun(sources_df_tab_list[23])
+sources_tab_fun(sources_df_tab_list[24])
+sources_tab_fun(sources_df_tab_list[25])
+sources_tab_fun(sources_df_tab_list[26])
+sources_tab_fun(sources_df_tab_list[27])
+sources_tab_fun(sources_df_tab_list[28])
+sources_tab_fun(sources_df_tab_list[29])
+sources_tab_fun(sources_df_tab_list[30])
+
+sources_tab_fun(sources_df_tab_list[31])
+sources_tab_fun(sources_df_tab_list[32])
+sources_tab_fun(sources_df_tab_list[33])
+sources_tab_fun(sources_df_tab_list[34])
+sources_tab_fun(sources_df_tab_list[35])
+sources_tab_fun(sources_df_tab_list[36])
+sources_tab_fun(sources_df_tab_list[37])
+sources_tab_fun(sources_df_tab_list[38])
+sources_tab_fun(sources_df_tab_list[39])
+sources_tab_fun(sources_df_tab_list[40])
+
+sources_tab_fun(sources_df_tab_list[41])
+sources_tab_fun(sources_df_tab_list[42])
+sources_tab_fun(sources_df_tab_list[43])
+sources_tab_fun(sources_df_tab_list[44])
+sources_tab_fun(sources_df_tab_list[45])
+sources_tab_fun(sources_df_tab_list[46])
+sources_tab_fun(sources_df_tab_list[47])
+sources_tab_fun(sources_df_tab_list[48])
+sources_tab_fun(sources_df_tab_list[49])
+sources_tab_fun(sources_df_tab_list[50])
+
+
+sources_tab_fun(sources_df_tab_list[51])
+sources_tab_fun(sources_df_tab_list[52])
+sources_tab_fun(sources_df_tab_list[53])
+sources_tab_fun(sources_df_tab_list[54])
+sources_tab_fun(sources_df_tab_list[55])
+sources_tab_fun(sources_df_tab_list[56])
+sources_tab_fun(sources_df_tab_list[57])
+sources_tab_fun(sources_df_tab_list[58])
+sources_tab_fun(sources_df_tab_list[59])
+sources_tab_fun(sources_df_tab_list[60])
+
+sources_tab_fun(sources_df_tab_list[61])
+sources_tab_fun(sources_df_tab_list[62])
+sources_tab_fun(sources_df_tab_list[63])
+sources_tab_fun(sources_df_tab_list[64])
+sources_tab_fun(sources_df_tab_list[65])
+sources_tab_fun(sources_df_tab_list[66])
+sources_tab_fun(sources_df_tab_list[67])
+sources_tab_fun(sources_df_tab_list[68])
+sources_tab_fun(sources_df_tab_list[69])
+sources_tab_fun(sources_df_tab_list[70])
+```
+
+
+

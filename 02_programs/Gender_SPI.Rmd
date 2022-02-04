@@ -1309,6 +1309,8 @@ sources_tab_fun <- function(variables) {
     add_footer_lines(values = "Source: UN Global SDG Database.") %>% 
     FitFlextableToPage() 
   
+    
+  
 
 }
  
