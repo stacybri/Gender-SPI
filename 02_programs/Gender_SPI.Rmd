@@ -3,7 +3,7 @@ title: 'Measuring the Availability of Gender Data using the Statistical Performa
 author: ""
 date: "`r Sys.Date()`"
 output:
-  bookdown::html_document2: 
+  bookdown::word_document2: 
     toc: yes
     fig_width: 9
     fig_height: 6
