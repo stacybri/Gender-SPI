@@ -51,7 +51,7 @@ SDG,Description,Code,Gender_Breakdown
 8.7.1 ,"Proportion and number of children aged 5–17 years engaged in child labour, by sex and age",SL_TLF_CHLDEA,1
 8.8.1 ,"Frequency rates of fatal and non-fatal occupational injuries, by sex and migrant status",SL_EMP_INJUR,1
 8.8.1 ,"Frequency rates of fatal and non-fatal occupational injuries, by sex and migrant status",SL_EMP_FTLINJUR,1
-8.8.2,"Level of national compliance with labour rights (freedom of association and collective bargaining) based on International Labour Organization (ILO) textual sources and national legislation, by sex and migrant status",P,1
+8.8.2,"Level of national compliance with labour rights (freedom of association and collective bargaining) based on International Labour Organization (ILO) textual sources and national legislation, by sex and migrant status",SL_LBR_NTLCPL,1
 10.2.1 ,"Proportion of people living below 50 per cent of median income, by sex, age and persons with disabilities",SI_POV_50MI,1
 11.2.1 ,"Proportion of population that has convenient access to public transport, by sex, age and persons with disabilities",,1
 11.7.1 ,"Average share of the built-up area of cities that is open space for public use for all, by sex, age and persons with disabilities",,1

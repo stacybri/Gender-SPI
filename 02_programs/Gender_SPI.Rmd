@@ -125,7 +125,10 @@ sdg_tab <- read_csv(file = paste0(raw_dir, '/misc/Gender_SDGs.csv'))
 #get a list of all SDG indicators
 indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
 
-indicators_list <- sdg_tab$Code
+indicators_list <- sdg_tab %>%
+  filter(!is.na(Code))
+
+indicators_list <- indicators_list$Code
 
 
 #bring in the list of indicators
