@@ -74,6 +74,16 @@ eq_plot_txt <- function(data) {
   sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
 
 }
+
+#add equations to plots
+eq_plot_txt_reverse <- function(data) {
+  eq <- lm_robust(availability ~ outcome, data=data, se_type='HC2')
+  coef <- coef(eq)
+  std_err <- sqrt(diag(vcov(eq)))
+  r_2<- summary(eq)$r.squared
+  sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
+
+}
 ```
 
 ```{r themes}
@@ -153,24 +163,31 @@ So as to judge countries by a set of indicators that are on the most solid found
 
 ```{r sdggender}
 
+# list_df %>%
+#   transmute(
+#     Goal=goal,
+#     Indicator=code,
+#     Description=description,
+#     Tier=tier
+#   ) %>%
+#   distinct() %>%
+#   flextable() %>%
+#     add_header_lines('Table 1. SDG Indicators Related to Gender') %>%
+#     merge_v(j='Goal') %>%
+#     theme_vanilla() %>%
+#     add_footer_lines(values = "Source: UN."                 ) %>%
+#   FitFlextableToPage() %>%
+#     autofit()
+  
 
-
-list_df %>%
-  transmute(
+table1dat <- list_df %>%
+   transmute(
     Goal=goal,
     Indicator=code,
     Description=description,
     Tier=tier
   ) %>%
-  distinct() %>%
-  flextable() %>%
-    add_header_lines('Table 1. SDG Indicators Related to Gender') %>%
-    merge_v(j='Goal') %>%
-    theme_vanilla() %>%
-    add_footer_lines(values = "Source: UN."                 ) %>%
-  FitFlextableToPage() %>%
-    autofit()
-  
+  distinct()
 
 ```
 
@@ -254,8 +271,45 @@ for (series in list_df$code1) {
   
 }
 
+#remove this dataframe if it exists
+if (exists('un_sdg_meta')) {
+  rm(un_sdg_meta)
+}
 
+for (series in list_df$code1) {
+    
+  #read in files
+  if (file.exists(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))) {
+   
+    tempmeta <- read_csv(paste(raw_dir,'/sdg_data/',series,'.csv',sep="")) %>%
+    filter(!is.na(ind_value)) %>%
+    group_by(ind_metadata, code1) %>%
+    summarise(n = n()) %>%
+    ungroup() %>%
+    mutate(tot = sum(n),
+           source_share = round(100*n/tot, 1))
+    
+    #   #now append it to the overall database
+    if (!exists('un_sdg_meta')) {
+      un_sdg_meta <- tempmeta
+    } else if (exists('un_sdg_meta')) {
+      un_sdg_meta <- un_sdg_meta %>%
+        bind_rows(tempmeta)
+    }
+  }
+  
+}
 
+ un_sdg_meta_wide <- un_sdg_meta %>%
+  filter(!is.na(ind_metadata)) %>%
+   group_by(code1, ind_metadata) %>%
+   summarise(source_share = mean(source_share)) %>%
+   spread(ind_metadata, source_share) %>%
+   mutate_all(as.character) %>%
+  mutate(source_share = paste0("C: (", C, "), CA: (", CA, "), E: (", E, "), G: (", G, "), M: (", M, ")"),
+         source_share = gsub("NA", "", source_share)) %>%
+   select(code1, source_share)
+  
 
 #read in OECD data for updates based on OECD database
 oecd_df <- read_csv(paste(raw_dir,'/oecd_data/OECD_data_scored.csv', sep=""))
@@ -454,7 +508,7 @@ for (i in c(2004:2020)) {
   }
 }
 
-write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_5yr.csv', sep="/"))
+write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_rev_5yr.csv', sep="/"))
 ####
 # 3 Year window
 ####
@@ -485,7 +539,7 @@ for (i in c(2004:2020)) {
   }
 }
 
-write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_3yr.csv', sep="/"))
+write_excel_csv(un_aki, paste(output_dir, 'SPI_Gender_UNSD_data_3yr.csv', sep="/"))
 
 ####
 # 1 Year window
@@ -617,6 +671,82 @@ avail_plt_df %>%
 
 ```
 
+
+Figure 1. Percentage of SDG Gender Indicators available between `r 2020-window` and 2020.  Each point corresponds to country By income group
+```{r avail_chart}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df %>%
+  mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg)
+
+avail_plt_df <- avail_plt_df %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.1),
+    y1 = c(world_avg + 20, 20),
+    y2 = c(world_avg + 2, 35)
+  )
+
+avail_plt_df %>%
+  filter(!is.na(income_level)) %>%
+  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,
+             color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  theme_bw() +
+  coord_flip() +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_level),
+     breaks=levels(avail_plt_df$income_level)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.35, y = 60, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 20, family = "Poppins", size = 4, color = "gray20",
+    label = "income level averages"
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+```
+
 ```{r availabilitydat1}
 
 
@@ -660,9 +790,6 @@ arrows <-
     y1 = c(world_avg + 20, 20),
     y2 = c(world_avg + 2, 36)
   )
-
-
-
 
 avail_plt_df %>%
   filter(!is.na(region)) %>%
@@ -713,6 +840,81 @@ avail_plt_df %>%
 
 ```
 
+
+Figure 2. Percentage of SDG Gender Tier 1 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country by income group
+```{r avail_chart}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df %>%
+    mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg) 
+
+avail_plt_df <- avail_plt_df %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.1),
+    y1 = c(world_avg + 20, 20),
+    y2 = c(world_avg + 2, 37)
+  )
+
+avail_plt_df %>%
+  filter(!is.na(income_level)) %>%
+#  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+#                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,  color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  theme_bw() +
+  coord_flip() +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_level),
+     breaks=levels(avail_plt_df$income_level)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.4, y = 70, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 20, family = "Poppins", size = 4, color = "gray20",
+    label = "income level averages"
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+```
 
 ```{r availabilitydat2}
 
@@ -811,6 +1013,80 @@ avail_plt_df %>%
 ```
 
 
+Figure 3. Percentage of SDG Gender Tier 2 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country by income group
+```{r avail_chart}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df %>%
+  mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg) 
+
+avail_plt_df <- avail_plt_df %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.1),
+    y1 = c(world_avg + 20, 16),
+    y2 = c(world_avg + 2, 26)
+  )
+
+avail_plt_df %>%
+  filter(!is.na(income_level)) %>%
+#  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+#                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,  color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  theme_bw() +
+  coord_flip() +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_level),
+     breaks=levels(avail_plt_df$income_level)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.4, y = 45, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 10, family = "Poppins", size = 4, color = "gray20",
+    label = "income level\naverages"
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+```
 
 Next, the availability of gender indicators in SDG 5 on gender equality are shown. This contains both the tier 1 and tier 2 indicators.
 
@@ -910,6 +1186,78 @@ avail_plt_df5 %>%
 
 ```
 
+Figure 4 by income group
+```{r avail_chart}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df5 %>%
+    mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg) 
+
+avail_plt_df5 <- avail_plt_df5 %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.1),
+    y1 = c(world_avg + 20, 16),
+    y2 = c(world_avg + 2, 26)
+  )
+
+avail_plt_df5 %>%
+  filter(!is.na(income_level)) %>%
+#  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+#                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,  color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  theme_bw() +
+  coord_flip() +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df5$income_level),
+     breaks=levels(avail_plt_df5$income_level)
+   ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.4, y = 45, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 10, family = "Poppins", size = 4, color = "gray20",
+    label = "income level\naverages"
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+```
+
 ## Coverage Gaps for SDG Indicators requiring Gender Breakdown
 
 
@@ -960,7 +1308,7 @@ write_excel_csv(un_sdg_gender_df, paste(output_dir, '/un_sdg_gender_disagg_df.cs
 
 
 ```{r gender_shape}
-
+#window <- 5
 upper_year <- 2020
 lower_year <- 2020-window
 
@@ -1054,7 +1402,7 @@ ggplot(disagg_plt_df, aes(x=code, y=Availability, group=sex,fill=sex)) +
     strip.text.x = element_text(
       size = 12)
 
-  )
+  )+
   expand_limits(y=100)
 
 ```
@@ -1072,7 +1420,7 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     ) %>%
   left_join(list_df %>% select(code, description, goal, tier)) %>%
   filter(sex %in% c("FEMALE", "Any")) %>%
-  mutate(sex=if_else(sex=="FEMALE","Gender Breakdown Available",'Any Data Available'),
+  mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
          Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
   arrange(as.numeric(goal), rev(code)) %>%
   distinct() %>%
@@ -1087,20 +1435,21 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     Description=description
   )
 
-disagg_tab_df %>%
-  select(Goal, Indicator, Tier, Description, `Gender Breakdown Available`, `Any Data Available`) %>%
+table1 <- disagg_tab_df %>%
+  select(Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
+  merge(table1dat, by = c("Goal", "Indicator", "Tier", "Description"), all = T) %>%
+  arrange(as.numeric(Goal), Indicator) %>%
   flextable() %>%
-    add_header_lines('Table 2. Gender Breakdowns Available for SDG Indicators') %>%
+    add_header_lines('Table 1. SDG Indicators related to Gender') %>%
     merge_v(j='Goal') %>%
-    set_formatter( `Gender Breakdown Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
+    set_formatter( `Sex Disaggregation Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
     set_formatter( `Any Data Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
     theme_vanilla() %>%
     add_footer_lines(values = "Source: UN."                 ) %>%
   FitFlextableToPage() %>%
     autofit()
-  
 
-
+save_as_docx(table1, path = paste(output_dir, '/table1.docx',sep=""))
 
 ```
 # Comparison of Gender Data Availability and SPI Scores
@@ -1131,16 +1480,28 @@ avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_',window,'yr.
   filter(date==2019 & goal=="Combined") #keep just most recent year
 
 #read in SPI data from WDI
-SPI_df <- wbstats::wb_data(indicator='IQ.SPI.OVRL',
+SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL', 'NY.GDP.PCAP.PP.CD'),
                            start_date = 2019)
-
 
 
 #combine data
 combined_df <- avail_SPI_df %>%
-  left_join(SPI_df) %>%
+  left_join(SPI_df) 
+
+combined_df <- combined_df %>%
   mutate(outcome=IQ.SPI.OVRL,
          value=availability)
+
+eq_plot_txt_reverse(combined_df)
+
+#combine data
+combined_df2 <- avail_SPI_df %>%
+  left_join(SPI_df) %>%
+  mutate(outcome=log2(NY.GDP.PCAP.PP.CD),
+         value=availability)
+
+eq_plot_txt_reverse(combined_df2)
+
 ```
 
 Figure 3. Plot of SPI overall score on Availability of Gender SDG Indicators
@@ -1150,28 +1511,52 @@ Figure 3. Plot of SPI overall score on Availability of Gender SDG Indicators
 
 #plot SPI scores against availability
 gend_spi_plt <-combined_df %>%
-  ggplot(aes(y=IQ.SPI.OVRL, x=availability)) +
+  ggplot(aes(x=IQ.SPI.OVRL, y=availability)) +
   geom_text(aes(label=iso3c)) +
   geom_smooth(method='lm') +
   theme_spi() +
-  ylab('SPI Overall Score') +
-  xlab('Availability of Gender SDG Indicators (%)') +
+  xlab('SPI Overall Score') +
+  ylab('Availability of Gender SDG Indicators (%)') +
   geom_richtext(
-    aes(x = 75, y = 5,label = eq_plot_txt(combined_df), hjust=0.2)
+    aes(x = 75, y = 5,label = eq_plot_txt_reverse(combined_df), hjust=0.2)
   ) +  
   theme(legend.position = 'bottom') +
   expand_limits(x=c(0,100),
                 y=c(0,100)) +
   labs(
-    title='Plot of SPI overall score on Availability of Gender SDG Indicators',
-    caption=str_wrap('Source: SPI Overall Score from the World Development Indicatrs (IQ.SPI.OVRL).  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+    title='Plot of SPI overall score and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: SPI Overall Score from the World Development Indicators (IQ.SPI.OVRL).  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
   )
-
 
 gend_spi_plt
 
 ```
 
+```{r spiplt}
+
+
+#plot SPI scores against availability
+gend_gdp_plt <-combined_df2 %>%
+  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
+  geom_text(aes(label=iso3c)) +
+  geom_smooth(method='lm') +
+  theme_spi() + 
+  scale_x_continuous(trans='log2') +
+  xlab('GDP per capita, PPP (current international $), logged') +
+  ylab('Availability of Gender SDG Indicators (%)') +
+  geom_richtext(
+    aes(y = 87, x = 40000,label = eq_plot_txt_reverse(combined_df2), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(y=c(0,100)) +
+  labs(
+    title='Plot of GDP per capita and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: GDP per capita from the World Development Indicatrs (NY.GDP.PCAP.PP.CD).  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+  )
+
+gend_gdp_plt
+
+```
 To highlight countries where these relationships do not hold as well, the next figure shows the 15 countries that most over-perform and the 15 countries that most under-perform on the availability of gender data compared to their SPI overall score.
 
 To produce this figure, we use OLS regression to estimate a linear model of the availability of gender SDG data on the SPI overall score in 2019. The residual can be interpreted as the difference between the country’s availability of gender data and the expected availability given their SPI overall score. Countries with values of the residual greater than zero are over-performing based on their SPI overall score and countries with residuals less than zero are under-performing. 
@@ -1302,10 +1687,29 @@ sources_categorized_df <- source_df_long %>%
             TRUE ~ "Other")
     )
 
-sources_explained <-sources_categorized_df %>%
-  group_by(data_type, code, description, description1) %>%
+sources_explained <- sources_categorized_df %>%
+  group_by(data_type, code, code1, description, description1) %>%
   summarise(n=sum(n),
-            `Example Source`=first(Source))
+            `Example Source`=first(Source)) %>%
+  left_join(un_sdg_meta_wide, by = "code1") %>%
+  arrange(code) %>%
+  select(code, code1, description, data_type, n, source_share, `Example Source`) %>%
+  rename('Indicator' = 'code',
+         'Code' = 'code1',
+         'Description' = 'description',
+         'Data Type' = 'data_type',
+         'Number of country-year surveys of the type' = 'n',
+         'Nature of data classification' ='source_share') %>%
+  flextable() %>%
+    add_header_lines('Table Annex. Data Sources for SDG Gender Indicators') %>%
+    merge_v(j='Indicator') %>%
+    theme_vanilla() #%>%
+#  FitFlextableToPage() %>%
+#    autofit()
+
+sources_explained
+
+save_as_docx(sources_explained, path = paste(output_dir, '/tableannex.docx',sep=""))
 
 
 ```
