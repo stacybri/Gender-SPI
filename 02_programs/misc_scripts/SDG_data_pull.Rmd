@@ -34,7 +34,7 @@ output_dir <- paste(dir, '03_output_data', sep="/")
 
 #parameters
 upper_year = 2020
-lower_year = 2010
+lower_year = 2004
 window=upper_year-lower_year #set the window
 
 ```
@@ -213,7 +213,7 @@ list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
   unnest(keep_empty = TRUE)
 
 list_df <- list_df %>%
-  filter(tier<=2) %>% # keep just the tier 1 & 2 indicators %>%
+  #filter(tier<=2) %>% # keep just the tier 1 & 2 indicators %>%
   filter(code1 %in% indicators_list) 
   # group_by(code) %>%
   # filter(row_number()==1)
@@ -259,7 +259,8 @@ un_pull_sex_disag <- function(series,start, end) {
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
-             (available & Nature=='M') ~ 1,
+             (available & Nature=='M') ~ 0,
+              Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
              !available ~ 0
            )) %>%
     group_by(date, sex) %>%
@@ -285,7 +286,8 @@ un_pull <- function(series,start, end) {
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
-             (available & Nature=='M') ~ 1,
+             (available & Nature=='M') ~ 0,
+             Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
              !available ~ 0
            )) %>%
     group_by(date) %>%
