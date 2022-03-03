@@ -1552,7 +1552,8 @@ gend_spi_plt
 
 #plot SPI scores against availability
 gend_gdp_plt <-combined_df2 %>%
-  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
+  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability, color=income_level)) +
+  facet_wrap(~income_level) +
   geom_text(aes(label=iso3c)) +
   geom_smooth(method='lm') +
   theme_spi() + 
@@ -1595,7 +1596,7 @@ gender_overperformers_df <- combined_df %>%
   head(15)
 
 #get top performing country
-top_outcome<-round(gender_overperformers_df$outcome[1],1)
+top_outcome<-round(gender_overperformers_df$value[1],1)
 top_pred<-round(as.numeric(gender_overperformers_df$pred[1]),1)
 top_res<-round(as.numeric(gender_overperformers_df$resid[1]),1)
 top_country<-gender_overperformers_df$country[1]
@@ -1618,7 +1619,7 @@ gender_overperformers_plot <-  gender_overperformers_df %>%
 
 The data is presented in two ways.  First, the number of additional SDG indicators compared to the expected number based on the SPI overall score is shown.  This is calculated by taking the residual from the regression described above and multiplying by the number of Gender related SDG indicators (`r ind_lgth` indicators).  To give a specific example, `r top_country` reported on `r top_outcome`% of the SDG gender indicators.  Based on the SPI overall score of the country, it was expected to produce `r top_pred` SDG gender indicators.  This resulted in a `r top_res` percentage point difference in the percentage of SDG gender indicators available. By multiplying this by the total number of SDG indicators on gender (`r ind_lgth` indicators), we get the additional SDG indicators compared to expected of `r round(top_res*ind_lgth,0)`.
 
-In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(100*top_res/top_pred,0)`.
+In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(top_res/top_pred,0)`.
 
 Figure 4: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
 ```{r overperformers}
@@ -1675,14 +1676,14 @@ m_spi <- lm(form , data = combined_df)
 gender_overperformers_df <- combined_df %>%
   modelr::add_residuals(m_spi) %>%
   modelr::add_predictions(m_spi) %>%
-  mutate(dist=resid/pred) %>%
+  mutate(dist=100*resid/pred) %>%
   arrange(-dist) %>%
   head(15)
 
 gender_underperformers_df <- combined_df %>%
   modelr::add_residuals(m_spi) %>%
   modelr::add_predictions(m_spi) %>%
-  mutate(dist=resid/pred) %>%
+  mutate(dist=100*resid/pred) %>%
   arrange(dist) %>%
   head(15)
 
