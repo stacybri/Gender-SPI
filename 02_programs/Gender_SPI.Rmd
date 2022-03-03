@@ -1508,6 +1508,9 @@ combined_df2 <- avail_SPI_df %>%
 
 eq_plot_txt_reverse(combined_df2)
 
+#get number of SDG indicators considered
+ind_lgth<-nrow(list_df)
+
 ```
 
 Figure 3. Plot of SPI overall score on Availability of Gender SDG Indicators
@@ -1563,13 +1566,94 @@ gend_gdp_plt <-combined_df2 %>%
 gend_gdp_plt
 
 ```
-To highlight countries where these relationships do not hold as well, the next figure shows the 15 countries that most over-perform and the 15 countries that most under-perform on the availability of gender data compared to their SPI overall score.
+To highlight countries where these relationships do not hold as well, the next figure shows the 15 countries that most over-perform and the 15 countries that most under-perform on the availability of gender data compared to their SPI overall score.  
 
 To produce this figure, we use OLS regression to estimate a linear model of the availability of gender SDG data on the SPI overall score in 2019. The residual can be interpreted as the difference between the country’s availability of gender data and the expected availability given their SPI overall score. Countries with values of the residual greater than zero are over-performing based on their SPI overall score and countries with residuals less than zero are under-performing. 
 
+```{r}
+#get top 10 and bottom 10 over performers compared to gdp and hci
 
-Figure 4: Top 15 Over/Under-Performers on SPI overall score compared to the Availability of Gender SDG Indicators in 2019
+## GDP
+#regress SPI on gdp
+
+indicator <- 'availability'
+
+form <- paste(indicator, " ~ IQ.SPI.OVRL", sep="")
+
+m_spi <- lm(form , data = combined_df) 
+
+gender_overperformers_df <- combined_df %>%
+  modelr::add_residuals(m_spi) %>%
+  modelr::add_predictions(m_spi) %>%
+  arrange(-resid) %>%
+  head(15)
+
+#get top performing country
+top_outcome<-round(gender_overperformers_df$outcome[1],1)
+top_pred<-round(gender_overperformers_df$pred[1],1)
+top_res<-round(gender_overperformers_df$res[1],1)
+top_country<-gender_overperformers_df$country[1]
+
+gender_underperformers_df <- combined_df %>%
+  modelr::add_predictions(m_spi) %>%
+  modelr::add_residuals(m_spi) %>%
+  arrange(resid) %>%
+  head(15)
+
+
+
+
+gender_overperformers_plot <-  gender_overperformers_df %>%
+  bind_rows(gender_underperformers_df) %>%
+  arrange(resid) %>%
+  mutate(n_ind=resid*ind_lgth/100)#transform data to number of additional indicators
+```
+
+
+The data is presented in two ways.  First, the number of additional SDG indicators compared to the expected number based on the SPI overall score is shown.  This is calculated by taking the residual from the regression described above and multiplying by the number of Gender related SDG indicators (`r ind_lgth` indicators).  To give a specific example, `r top_country` reported on `r top_outcome`% of the SDG gender indicators.  Based on the SPI overall score of the country, it was expected to produce `r top_pred` SDG gender indicators.  This resulted in a `r top_res` percentage point difference in the percentage of SDG gender indicators available. By multiplying this by the total number of SDG indicators on gender (`r ind_lgth` indicators), we get the additional SDG indicators compared to expected of `r round(top_res*ind_lgth,0)`.
+
+In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(100*top_res/top_pred,0)`.
+
+Figure 4: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
 ```{r overperformers}
+
+
+
+gender_overperformers_plot <- gender_overperformers_plot %>%
+  mutate(country=factor(country, levels=unique(gender_overperformers_plot$country)),
+         group=if_else(n_ind>=0, 'above','below')) %>%
+  ggplot(aes(x=country, y=n_ind, color=group)) +
+  geom_segment( aes(x=country ,xend=country, y=0, yend=n_ind), color="black") +
+  geom_point(size=3) +
+  scale_color_manual(name="Gender SDG Availability",
+                     labels = c("Over-performers", "Under-performers"),
+                     values = c('above'="#1A9850", 'below'="#D73027")) +
+  coord_flip() +
+  theme_spi() +
+  theme(
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.position = 'bottom'
+  ) +
+  xlab("") +
+  ylab("Number of Additional SDG Indicators Compared to Expected") +
+  ggtitle("Gender SDG Availability",
+          subtitle = 'Number of Additional SDG Indicators than Expected Based on SPI Score')
+
+
+
+
+
+gender_overperformers_plot + 
+  plot_annotation(
+    # title='Top 15 Over/Under-Performers on SPI overall score compared to GDP per capita and Human Capital Index',
+                  caption=str_wrap('Over and under performers calculated for Availability of Gender Indicators by using OLS regression of Availability on SPI overall score in 2019 and calculting residuals from this regression.  ',100)
+                  )
+```
+
+
+Figure 4b: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
+```{r overperformersb}
 
 #get top 10 and bottom 10 over performers compared to gdp and hci
 
@@ -1584,24 +1668,28 @@ m_spi <- lm(form , data = combined_df)
 
 gender_overperformers_df <- combined_df %>%
   modelr::add_residuals(m_spi) %>%
-  arrange(-resid) %>%
+  modelr::add_predictions(m_spi) %>%
+  mutate(dist=resid/pred) %>%
+  arrange(-dist) %>%
   head(15)
 
 gender_underperformers_df <- combined_df %>%
   modelr::add_residuals(m_spi) %>%
-  arrange(resid) %>%
+  modelr::add_predictions(m_spi) %>%
+  mutate(dist=resid/pred) %>%
+  arrange(dist) %>%
   head(15)
 
 
 gender_overperformers_plot <-  gender_overperformers_df %>%
   bind_rows(gender_underperformers_df) %>%
-  arrange(resid) 
+  arrange(dist) 
 
 gender_overperformers_plot <- gender_overperformers_plot %>%
   mutate(country=factor(country, levels=unique(gender_overperformers_plot$country)),
-         group=if_else(resid>=0, 'above','below')) %>%
-  ggplot(aes(x=country, y=resid, color=group)) +
-  geom_segment( aes(x=country ,xend=country, y=0, yend=resid), color="black") +
+         group=if_else(dist>=0, 'above','below')) %>%
+  ggplot(aes(x=country, y=dist, color=group)) +
+  geom_segment( aes(x=country ,xend=country, y=0, yend=dist), color="black") +
   geom_point(size=3) +
   scale_color_manual(name="Gender SDG Availability",
                      labels = c("Over-performers", "Under-performers"),
@@ -1614,8 +1702,9 @@ gender_overperformers_plot <- gender_overperformers_plot %>%
     legend.position = 'bottom'
   ) +
   xlab("") +
-  ylab("SPI (deviation)") +
-  ggtitle("Gender SDG Availability")
+  ylab("Percentage Difference from Expected Based on SPI Overall Score") +
+  ggtitle("Gender SDG Availability",
+          subtitle = 'Difference from Expected shown as Percent of Predicted Value')
 
 
 
