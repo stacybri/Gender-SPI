@@ -1552,8 +1552,7 @@ gend_spi_plt
 
 #plot SPI scores against availability
 gend_gdp_plt <-combined_df2 %>%
-  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability, color=income_level)) +
-  facet_wrap(~income_level) +
+  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
   geom_text(aes(label=iso3c)) +
   geom_smooth(method='lm') +
   theme_spi() + 
