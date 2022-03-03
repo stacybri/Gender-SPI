@@ -1725,15 +1725,21 @@ gender_overperformers_plot +
 
 As discussed above, a simple OLS regresion of the availability of gender SDG indicators on the SPI overall score, indicates that around 40% of the variation in the availability of gender SDG indicators is explained by the statistical performance of a country, leaving around 60% unexplained.  Below a discussion will be given of other factors that may explain the availability of gender SDG indicators, including the region, income level, population size, and level of female empowerment in a country as measured by the [Women, Business, and the Law index](https://wbl.worldbank.org/en/wbl).  
 
-
+Table. Regression of Availability of SDG Indicators on Explanatory Variables.  Data from year 2019.
 ```{r model}
 
 
-avail_wbstats_df
+avail_wbstats_reg_df <- avail_wbstats_df %>%
+  filter(!(is.na(IQ.SPI.OVRL) | is.na(NY.GDP.PCAP.PP.CD) | is.na(SP.POP.TOTL) | is.na(SG.LAW.INDX)))
 
 models <- list(
   
-'Availability of Gender SDG Indicators' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region , data=avail_wbstats_df, se='hetero')
+'All Explanatory Variables Included' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region  , data=avail_wbstats_reg_df, se='hetero'),
+'SPI Only' = feols(availability ~  IQ.SPI.OVRL , data=avail_wbstats_reg_df, se='hetero'),
+'SPI Excluded' = feols(availability ~   log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region , data=avail_wbstats_reg_df, se='hetero'),
+'Region Only' = feols(availability ~   region  , data=avail_wbstats_reg_df, se='hetero'),
+'Region Excluded' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX  , data=avail_wbstats_reg_df, se='hetero')
+
 )
 
 
@@ -1742,6 +1748,7 @@ modelsummary(models,
              estimate= "{estimate}{stars}",
              coef_rename = c("IQ.SPI.OVRL" = "SPI Overall Score",
                              "log(NY.GDP.PCAP.PP.CD)" = "Log GDP per capita",
+                             "log(NY.GDP.PCAP.PP.CD^2)" = "Log GDP per capita Squared",
                              "region"="Region",
                              "log(SP.POP.TOTL)"="Log Population",
                              "SG.LAW.INDX" = "Women Business and the Law Index Score (scale 1-100)"
