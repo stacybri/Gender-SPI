@@ -43,6 +43,8 @@ library(estimatr)
 library(ggpmisc)
 library(ggthemes)
 library(ggtext)
+library(fixest)
+library(modelsummary)
 #set directories
 dir <- here()
 
@@ -97,7 +99,11 @@ theme_spi <- function () {
     )
 }
 
-
+#modelsummary output
+gm <- tibble::tribble(
+  ~raw,        ~clean,          ~fmt,
+  "nobs",      "N",             0,
+  "r.squared", "R Sq.", 2)
 ```
 
 
@@ -1475,7 +1481,7 @@ sources, including databases produced by the World Bank, International Monetary 
 in some cases, directly from national statistical office websites. The indicators are also summarized as an index, termed the SPI overall score,
 with scores ranging from a low of 0 to a high of 100. 
 
-There is a positive relationship between countries SPI overall scores and the availability of gender data as indicated in Figure 3.
+There is a positive relationship between countries SPI overall scores and the availability of gender data as indicated in Figure 3.  The figure suggests that the countries statistical system, as measured by the SPI overall score, explains a little over 40% of the variation in the availability of Gender SDG Indicators.  This is based on the R-squared from a linear regression of the availability of the SDG gender indicators on the SPI overall score in 2019.  
 
 ```{r spidf}
 
@@ -1485,15 +1491,15 @@ avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_',window,'yr.
   filter(date==2019 & goal=="Combined") #keep just most recent year
 
 #read in SPI data from WDI
-SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL', 'NY.GDP.PCAP.PP.CD'),
+SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL', 'NY.GDP.PCAP.PP.CD', 'SP.POP.TOTL', 'SG.LAW.INDX'),
                            start_date = 2019)
 
 
 #combine data
-combined_df <- avail_SPI_df %>%
+avail_wbstats_df <- avail_SPI_df %>%
   left_join(SPI_df) 
 
-combined_df <- combined_df %>%
+combined_df <- avail_wbstats_df %>%
   mutate(outcome=IQ.SPI.OVRL,
          value=availability)
 
@@ -1716,6 +1722,37 @@ gender_overperformers_plot +
                   caption=str_wrap('Over and under performers calculated for Availability of Gender Indicators by using OLS regression of Availability on SPI overall score in 2019 and calculting residuals from this regression.  ',100)
                   )
 ```
+
+As discussed above, a simple OLS regresion of the availability of gender SDG indicators on the SPI overall score, indicates that around 40% of the variation in the availability of gender SDG indicators is explained by the statistical performance of a country, leaving around 60% unexplained.  Below a discussion will be given of other factors that may explain the availability of gender SDG indicators, including the region, income level, population size, and level of female empowerment in a country as measured by the [Women, Business, and the Law index](https://wbl.worldbank.org/en/wbl).  
+
+
+```{r model}
+
+
+avail_wbstats_df
+
+models <- list(
+  
+'Availability of Gender SDG Indicators' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region , data=avail_wbstats_df, se='hetero')
+)
+
+
+
+modelsummary(models,
+             estimate= "{estimate}{stars}",
+             coef_rename = c("IQ.SPI.OVRL" = "SPI Overall Score",
+                             "log(NY.GDP.PCAP.PP.CD)" = "Log GDP per capita",
+                             "region"="Region",
+                             "log(SP.POP.TOTL)"="Log Population",
+                             "SG.LAW.INDX" = "Women Business and the Law Index Score (scale 1-100)"
+                             ),
+             notes="",
+             gof_map = gm,
+             escape = FALSE             
+             )
+
+```
+
 
 # Data Sources for Gender Indicators
 
