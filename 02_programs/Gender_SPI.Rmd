@@ -290,7 +290,8 @@ for (series in list_df$code1) {
     summarise(n = n()) %>%
     ungroup() %>%
     mutate(tot = sum(n),
-           source_share = round(100*n/tot, 1))
+           source_share = round(100*n/tot, 1),
+           ind_metadata=as.character(ind_metadata))
     
     #   #now append it to the overall database
     if (!exists('un_sdg_meta')) {
