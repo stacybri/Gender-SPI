@@ -1590,8 +1590,8 @@ gender_overperformers_df <- combined_df %>%
 
 #get top performing country
 top_outcome<-round(gender_overperformers_df$outcome[1],1)
-top_pred<-round(gender_overperformers_df$pred[1],1)
-top_res<-round(gender_overperformers_df$res[1],1)
+top_pred<-round(as.numeric(gender_overperformers_df$pred[1]),1)
+top_res<-round(as.numeric(gender_overperformers_df$resid[1]),1)
 top_country<-gender_overperformers_df$country[1]
 
 gender_underperformers_df <- combined_df %>%
