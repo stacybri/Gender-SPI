@@ -1502,6 +1502,7 @@ eq_plot_txt_reverse(combined_df)
 #combine data
 combined_df2 <- avail_SPI_df %>%
   left_join(SPI_df) %>%
+  filter(!is.na(IQ.SPI.OVRL)) %>% #keep the number of countries the same as the other dataframe.  SPI is the bottleneck
   mutate(outcome=log2(NY.GDP.PCAP.PP.CD),
          value=availability)
 
@@ -1546,7 +1547,7 @@ gend_gdp_plt <-combined_df2 %>%
   geom_text(aes(label=iso3c)) +
   geom_smooth(method='lm') +
   theme_spi() + 
-  scale_x_continuous(trans='log2') +
+  scale_x_log10(labels=scales::comma) +
   xlab('GDP per capita, PPP (current international $), logged') +
   ylab('Availability of Gender SDG Indicators (%)') +
   geom_richtext(
@@ -1712,7 +1713,7 @@ sources_explained %>%
     add_header_lines('Table Annex. Data Sources for SDG Gender Indicators') %>%
     merge_v(j='Indicator') %>%
     theme_vanilla() #%>%
-#  FitFlextableToPage() %>%
+#  FitFlextableToPage() %>%`
 #    autofit()
 
 
