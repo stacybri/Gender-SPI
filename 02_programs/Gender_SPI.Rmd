@@ -511,6 +511,7 @@ for (i in c(2004:2020)) {
       arrange(-date, iso3c)
   }
 }
+write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_5yr.csv', sep="/"))
 
 write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_rev_5yr.csv', sep="/"))
 ####
