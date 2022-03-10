@@ -245,7 +245,7 @@ We give countries no credit for modeled data, because the country did not produc
   
 When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
 
-```{r save, echo=FALSE}
+```{r save, echo=FALSE, message=FALSE, warning=FALSE}
 
 country_metadata <- wbstats::wb_countries() %>%
   filter(region!="Aggregates")
@@ -1616,9 +1616,9 @@ gender_overperformers_plot <-  gender_overperformers_df %>%
 ```
 
 
-The data is presented in two ways.  First, the number of additional SDG indicators compared to the expected number based on the SPI overall score is shown.  This is calculated by taking the residual from the regression described above and multiplying by the number of Gender related SDG indicators (`r ind_lgth` indicators).  To give a specific example, `r top_country` reported on `r top_outcome`% of the SDG gender indicators.  Based on the SPI overall score of the country, it was expected to produce `r top_pred` SDG gender indicators.  This resulted in a `r top_res` percentage point difference in the percentage of SDG gender indicators available. By multiplying this by the total number of SDG indicators on gender (`r ind_lgth` indicators), we get the additional SDG indicators compared to expected of `r round(top_res*ind_lgth,0)`.
+The data is presented in two ways.  First, the number of additional SDG indicators compared to the expected number based on the SPI overall score is shown.  This is calculated by taking the residual from the regression described above and multiplying by the number of Gender related SDG indicators (`r ind_lgth` indicators).  To give a specific example, `r top_country` reported on `r top_outcome`% of the SDG gender indicators.  Based on the SPI overall score of the country, it was expected to produce `r top_pred` SDG gender indicators.  This resulted in a `r top_res` percentage point difference in the percentage of SDG gender indicators available. By multiplying this by the total number of SDG indicators on gender (`r ind_lgth` indicators), we get the additional SDG indicators compared to expected of `r round(top_res*ind_lgth/100,0)`.
 
-In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(top_res/top_pred,0)`.
+In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(top_res/top_pred,2)`.
 
 Figure 4: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
 ```{r overperformers}
