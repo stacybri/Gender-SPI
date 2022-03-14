@@ -194,8 +194,11 @@ table1dat <- list_df %>%
     Goal=goal,
     Indicator=code,
     Description=description,
-    Tier=tier
+    Tier=tier,
+    `Sub-Description`=description1
   ) %>%
+  group_by(Goal, Indicator, Description, Tier) %>%
+  summarise(`Sub-Indicators`=paste(`Sub-Description`,collapse="; /n ")) %>%
   distinct()
 
 ```
@@ -1357,7 +1360,7 @@ gender_disagg_empty <- gender_df_empty %>% mutate(sex='FEMALE') %>%
 
 #create database of gender indicators whether they exist at all
 
-  sdg_gender_exists_df <- un_sdg_gender_df %>%
+  sdg_gender_exists_df <- un_sdg_df %>%
     filter(between(date,lower_year,upper_year) ) %>%
     filter(!is.na(ind_quality)) %>%
     right_join(gender_df_empty) %>%
@@ -1449,6 +1452,7 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
 table1 <- disagg_tab_df %>%
   select(Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("Goal", "Indicator", "Tier", "Description"), all = T) %>%
+  select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
   arrange(as.numeric(Goal), Indicator) %>%
   flextable() %>%
     add_header_lines('Table 1. SDG Indicators related to Gender') %>%
