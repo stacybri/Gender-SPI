@@ -198,7 +198,7 @@ table1dat <- list_df %>%
     `Sub-Description`=description1
   ) %>%
   group_by(Goal, Indicator, Description, Tier) %>%
-  summarise(`Sub-Indicators`=paste(`Sub-Description`,collapse="; ^p ")) %>%
+  summarise(`Sub-Indicators`=paste(`Sub-Description`,collapse="; /n ")) %>%
   distinct()
 
 ```
