@@ -203,7 +203,7 @@ list_df &lt;- list_df %&gt;%
       }, error=function(e){cat(&quot;ERROR :&quot;,conditionMessage(e), &quot;\n&quot;)})
     }
 }</code></pre>
-<pre><code>## [1] &quot;SL_LBR_NTLCPL&quot;</code></pre>
+<pre><code>## [1] &quot;SI_POV_DAY1&quot;</code></pre>
 <p>Download sex disaggregated.</p>
 <pre class="r"><code>list_gender_df &lt;- list_df %&gt;%
   left_join(indicators_list_df %&gt;% rename(code1=Code)) %&gt;%
@@ -233,7 +233,8 @@ for (series in list_gender_df$code1) {
 }, error=function(e){cat(&quot;ERROR :&quot;,conditionMessage(e), &quot;\n&quot;)})
 
 }</code></pre>
-<pre><code>## [1] NA
+<pre><code>## [1] &quot;SI_POV_DAY1&quot;
+## [1] NA
 ## ERROR : Must subset columns with a valid subscript vector.
 ## x Subscript has the wrong type `spec_tbl_df&lt;
 ##   country    : character
@@ -1007,7 +1008,6 @@ for (series in list_df$code1) {
 ##   iso3c      : character
 ## &gt;`.
 ## i It must be numeric or character. 
-## [1] &quot;SL_LBR_NTLCPL&quot;
 ## [1] NA
 ## ERROR : Must subset columns with a valid subscript vector.
 ## x Subscript has the wrong type `spec_tbl_df&lt;
@@ -1031,7 +1031,8 @@ for (series in list_df$code1) {
 ##   geoAreaCode: character
 ##   iso3c      : character
 ## &gt;`.
-## i It must be numeric or character.</code></pre>
+## i It must be numeric or character. 
+## [1] &quot;SI_POV_DAY1&quot;</code></pre>
 
 
 
