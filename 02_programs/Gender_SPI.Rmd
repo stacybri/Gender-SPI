@@ -128,6 +128,12 @@ This paper then offers a discussion for why such gender gaps exist.  First, the 
 #read in table about gender sdgs
 sdg_tab <- read_csv(file = paste0(raw_dir, '/misc/Gender_SDGs.csv')) 
 
+sdg_tab_merge <- sdg_tab %>%
+  #filter(!is.na(Code)) %>%
+  transmute(ccode=ccode,
+            code1=Code,
+            code=SDG)
+
 #get a list of all SDG indicators
 indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
 
@@ -142,9 +148,11 @@ list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
   as_tibble() %>%
   unnest(keep_empty = TRUE)
 
-list_df <- list_df %>%
-  filter(tier<=2) %>% # keep just the tier 1 indicators %>%
-  filter(code1 %in% indicators_list) 
+list_df <- sdg_tab_merge %>%
+  left_join(list_df) %>%
+  #filter(tier<=2) %>% # keep just the tier 1 indicators %>%
+  #filter(code1 %in% indicators_list) 
+  filter(!is.na(ccode)) 
 
 # get list of tier 1 indicaors
 tier1_list <- list_df %>%
@@ -191,15 +199,17 @@ So as to judge countries by a set of indicators that are on the most solid found
 
 table1dat <- list_df %>%
    transmute(
+    ccode=ccode,
     Goal=goal,
     Indicator=code,
     Description=description,
     Tier=tier,
     `Sub-Description`=description1
   ) %>%
-  group_by(Goal, Indicator, Description, Tier) %>%
+  group_by(ccode, Goal, Indicator, Description, Tier) %>%
   summarise(`Sub-Indicators`=paste(`Sub-Description`,collapse="; /n ")) %>%
-  distinct()
+  distinct() %>%
+  select(-ccode)
 
 ```
 
@@ -349,9 +359,10 @@ write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
 un_aki_fun <- function(date_start, date_end) {
   
   global <- un_sdg_df %>%
+    left_join(sdg_tab_merge) %>% #merge on special code for aggregating
     filter(between(date,date_start,date_end) ) %>%
     filter(!is.na(ind_quality)) %>%
-    group_by(iso3c, code,goal) %>%
+    group_by(iso3c, ccode,goal) %>%
     summarise(ind_quality=max(ind_quality, na.rm=T),
               ind_value=mean(ind_value, na.rm=T),
               ind_metadata=first(ind_metadata)) %>% #check if any values (even sub-indicators) for indicator
@@ -366,10 +377,11 @@ un_aki_fun <- function(date_start, date_end) {
            goal="Combined")
   
     tier1 <- un_sdg_df %>%
+      left_join(sdg_tab_merge) %>% #merge on special code for aggregating
       filter(between(date,date_start,date_end) ) %>%
       filter(!is.na(ind_quality)) %>%
       filter(code1 %in% tier1_list) %>% #get just tier1 indicators  
-      group_by(iso3c, code,goal) %>%
+      group_by(iso3c, ccode,goal) %>%
       summarise(ind_quality=max(ind_quality, na.rm=T),
                 ind_value=mean(ind_value, na.rm=T),
                 ind_metadata=first(ind_metadata)) %>% #check if any values (even sub-indicators) for indicator
@@ -384,10 +396,11 @@ un_aki_fun <- function(date_start, date_end) {
              goal="Tier 1")
     
     tier2 <- un_sdg_df %>%
+      left_join(sdg_tab_merge) %>% #merge on special code for aggregating
       filter(between(date,date_start,date_end) ) %>%
       filter(!is.na(ind_quality)) %>%
       filter(code1 %in% tier2_list) %>% #get just tier1 indicators  
-      group_by(iso3c, code,goal) %>%
+      group_by(iso3c, ccode,goal) %>%
       summarise(ind_quality=max(ind_quality, na.rm=T),
                 ind_value=mean(ind_value, na.rm=T),
                 ind_metadata=first(ind_metadata)) %>% #check if any values (even sub-indicators) for indicator
@@ -402,9 +415,10 @@ un_aki_fun <- function(date_start, date_end) {
              goal="Tier 2")
   
    goal <- un_sdg_df %>%
+    left_join(sdg_tab_merge) %>% #merge on special code for aggregating
     filter(between(date,date_start,date_end) ) %>%
     filter(!is.na(ind_quality)) %>%
-    group_by(iso3c, code,goal) %>%
+    group_by(iso3c, ccode,goal) %>%
     summarise(ind_quality=max(ind_quality, na.rm=T),
               ind_value=mean(ind_value, na.rm=T),
               ind_metadata=first(ind_metadata)) %>% #check if any values (even sub-indicators) for indicator
@@ -1310,7 +1324,8 @@ for (series in list_df$code1) {
 }
 
 
-
+un_sdg_gender_df <- un_sdg_gender_df %>%
+  left_join(sdg_tab_merge) #add in special codes for grouping indicators (ccode)
 
 
 #save the data file
@@ -1322,7 +1337,7 @@ write_excel_csv(un_sdg_gender_df, paste(output_dir, '/un_sdg_gender_disagg_df.cs
 
 
 ```{r gender_shape}
-#window <- 5
+window <- 5
 upper_year <- 2020
 lower_year <- 2020-window
 
@@ -1346,7 +1361,7 @@ gender_disagg_empty <- gender_df_empty %>% mutate(sex='FEMALE') %>%
     filter(between(date,lower_year,upper_year) ) %>%
     filter(!is.na(ind_quality)) %>%
     right_join(gender_disagg_empty) %>%
-    group_by(iso3c,  code, sex) %>%
+    group_by(iso3c,  ccode, sex) %>%
     summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
     pivot_wider(
       names_from='code',
@@ -1432,7 +1447,7 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
       names_to='code',
       values_to='Availability'
     ) %>%
-  left_join(list_df %>% select(code, description, goal, tier)) %>%
+  right_join(list_df %>% select(ccode, code, description, goal, tier)) %>%
   filter(sex %in% c("FEMALE", "Any")) %>%
   mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
          Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
@@ -1453,6 +1468,7 @@ table1 <- disagg_tab_df %>%
   select(Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("Goal", "Indicator", "Tier", "Description"), all = T) %>%
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
+  select(-ccode) %>%
   arrange(as.numeric(Goal), Indicator) %>%
   flextable() %>%
     add_header_lines('Table 1. SDG Indicators related to Gender') %>%
