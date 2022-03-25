@@ -1473,12 +1473,14 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     Description=description
   )
 
-table1 <- disagg_tab_df %>%
+table1_df <- disagg_tab_df %>%
   select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
   select(-ccode) %>%
-  arrange(as.numeric(Goal), Indicator) %>%
+  arrange(as.numeric(Goal), Indicator) 
+
+table1 <- table1_df %>%
   flextable() %>%
     add_header_lines('Table 1. SDG Indicators related to Gender') %>%
     merge_v(j='Goal') %>%
@@ -2235,5 +2237,238 @@ sources_tab_fun(sources_df_tab_list[69])
 sources_tab_fun(sources_df_tab_list[70])
 ```
 
+# Annex
+
+## Data Availability Including Modelled Data
 
 
+
+For each indicator, we will produce a value for each country with the following coding scheme:    
+
+  * **1 Point**: Indicator exists and the value is based on the **country**, **country data adjusted**, **estimated**, **modeled or Global Monitoring** data    
+  * **0 Points**: Indicator **does not exists**
+  
+We give countries no credit for modeled data, because the country did not produce indicators in a form that was directly usable for reporting on an SDG indicator.
+  
+When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
+
+
+```{r savemod, echo=FALSE, message=FALSE, warning=FALSE}
+
+country_metadata <- wbstats::wb_countries() %>%
+  filter(region!="Aggregates")
+
+#remove this dataframe if it exists
+if (exists('un_sdg_df_modelled')) {
+  rm(un_sdg_df_modelled)
+}
+
+for (series in list_df$code1) {
+    
+  #read in files
+  if (file.exists(paste(raw_dir,'/sdg_data/',series,'_modelled.csv',sep=""))) {
+    temp <- read_csv(paste(raw_dir,'/sdg_data/',series,'_modelled.csv',sep="")) %>%
+      mutate(
+        date=as.numeric(date), 
+        goal=as.character(goal), 
+        target=as.character(target), 
+        code==as.character(code), 
+        code1=as.character(code1), 
+        description1=as.character(description1)
+      )
+    
+    #   #now append it to the overall database
+    if (!exists('un_sdg_df_modelled')) {
+      un_sdg_df_modelled <- temp
+    } else if (exists('un_sdg_df_modelled')) {
+      un_sdg_df_modelled <- un_sdg_df_modelled %>%
+        bind_rows(temp)
+    }
+  }
+  
+}
+
+
+#read in OECD data for updates based on OECD database
+oecd_df <- read_csv(paste(raw_dir,'/oecd_data/OECD_data_scored.csv', sep=""))
+
+un_sdg_df_modelled <- un_sdg_df_modelled %>%
+  mutate(goal=as.numeric(goal)) %>%
+  left_join(oecd_df) %>%
+  mutate(goal=as.character(goal)) %>%
+  mutate(ind_quality=if_else(ind_quality.oecd>ind_quality,ind_quality.oecd,ind_quality, ind_quality )) #replace value with OECD value if it exists
+
+#save the data file
+  
+write_excel_csv(un_sdg_df_modelled, paste(output_dir, '/un_sdg_df_modelled.csv',sep=""))
+
+
+```
+
+
+```{r readgendermod}
+
+
+
+#remove this dataframe if it exists
+if (exists('un_sdg_gender_df_modelled')) {
+  rm(un_sdg_gender_df)
+}
+
+for (series in list_df$code1) {
+    
+  #read in files
+  if (file.exists(paste(raw_dir,'/sdg_data/',series,'_sex_disagg_modelled.csv',sep=""))) {
+    temp <- read_csv(paste(raw_dir,'/sdg_data/',series,'_sex_disagg_modelled.csv',sep="")) %>%
+      mutate(
+        date=as.numeric(date), 
+        goal=as.character(goal), 
+        target=as.character(target), 
+        code==as.character(code), 
+        code1=as.character(code1), 
+        description1=as.character(description1)
+      )
+    
+    #   #now append it to the overall database
+    if (!exists('un_sdg_gender_df_modelled')) {
+      un_sdg_gender_df_modelled <- temp
+    } else if (exists('un_sdg_gender_df_modelled')) {
+      un_sdg_gender_df_modelled <- un_sdg_gender_df_modelled %>%
+        bind_rows(temp)
+    }
+  }
+  
+}
+
+
+un_sdg_gender_df_modelled <- un_sdg_gender_df_modelled %>%
+  left_join(sdg_tab_merge) #add in special codes for grouping indicators (ccode)
+
+
+#save the data file
+  
+write_excel_csv(un_sdg_gender_df_modelled, paste(output_dir, '/un_sdg_gender_df_modelled.csv',sep=""))
+
+```
+
+
+```{r gender_shapemod}
+window <- 5
+upper_year <- 2020
+lower_year <- 2020-window
+
+span <- c(lower_year:upper_year)
+
+#create two empty datasets to merge onto
+gender_df_empty <- bind_rows(replicate(length(span), wbstats::wbcountries(), simplify = FALSE), .id='date') %>%
+  mutate(date=as.numeric(date)+span[1]-1) %>%
+  filter(region!="Aggregates") %>% # take out the aggregates (LAC, SAR, etc)
+  select(iso3c, date)
+
+gender_disagg_empty <- gender_df_empty %>% mutate(sex='FEMALE') %>%
+  bind_rows(gender_df_empty %>% mutate(sex='MALE')) %>%
+  bind_rows(gender_df_empty %>% mutate(sex='BOTHSEX'))
+
+
+
+#create database of gender indicators disaggregated by sex
+
+  sdg_gender_disagg_df <- un_sdg_gender_df_modelled %>%
+    filter(between(date,lower_year,upper_year) ) %>%
+    filter(!is.na(ind_quality)) %>%
+    right_join(gender_disagg_empty) %>%
+    group_by(iso3c, ccode, sex) %>%
+    summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
+    filter(!is.na(ccode)) %>%
+    pivot_wider(
+      names_from='ccode',
+      names_prefix="ccode.",
+      values_from='ind_quality'
+    ) %>%
+  ungroup() %>%
+  filter(sex %in% c("FEMALE",  "MALE","BOTHSEX" )) %>%
+  mutate(across(contains("."),~if_else(is.na(.),0,.))) %>%
+   group_by( sex) %>%
+   summarise(across(contains("."),mean, na.rm=T)) 
+
+#create database of gender indicators whether they exist at all
+
+  sdg_gender_exists_df <- un_sdg_df_modelled  %>%
+    left_join(sdg_tab_merge) %>% #add ccode for specialized indicator grouping
+    filter(between(date,lower_year,upper_year) ) %>%
+    filter(!is.na(ind_quality)) %>%
+    right_join(gender_df_empty) %>%
+    group_by(iso3c,ccode) %>%
+    summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
+    filter(!is.na(ccode)) %>%
+    pivot_wider(
+      names_from='ccode',
+      names_prefix="ccode.",
+      values_from='ind_quality'
+    ) %>%
+  ungroup() %>%
+  mutate(across(contains("."),~if_else(is.na(.),0,.))) %>%
+  summarise(across(contains("."),mean, na.rm=T)) %>%
+  mutate(sex="Any")
+
+sdg_gender_disagg_df <- sdg_gender_disagg_df %>%
+  bind_rows(sdg_gender_exists_df) 
+  
+```
+
+
+```{r tablemod}
+
+disagg_tab_df <- sdg_gender_disagg_df %>%
+  pivot_longer(
+      cols=contains("."),
+      names_to='ccode',
+      values_to='Availability'
+    ) %>%
+  mutate(ccode=str_remove(ccode,'ccode.'),
+         ccode=as.numeric(ccode)) %>%
+  right_join(list_df %>% select(ccode, code, description, goal, tier)) %>%
+  filter(sex %in% c("FEMALE", "Any")) %>%
+  mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
+         Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
+  arrange(as.numeric(goal), rev(code)) %>%
+  distinct() %>%
+  pivot_wider(
+    names_from=sex,
+    values_from=Availability
+  ) %>%
+  mutate(
+    Goal=goal,
+    Indicator=code,
+    Tier=tier,
+    Description=description
+  )
+
+table1_modelled_df <- disagg_tab_df %>%
+  select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
+  merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
+  select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
+  select(-ccode) %>%
+  arrange(as.numeric(Goal), Indicator) 
+
+table1_modelled <- table1_modelled_df %>%
+  flextable() %>%
+    add_header_lines('Table 1b. SDG Indicators related to Gender - Modelled data included') %>%
+    merge_v(j='Goal') %>%
+    set_formatter( `Sex Disaggregation Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
+    set_formatter( `Any Data Available` = function(x) sprintf( "%.1f%%", x ) ) %>%
+    theme_vanilla() %>%
+    add_footer_lines(values = "Source: UN."                 ) %>%
+  FitFlextableToPage() %>%
+    autofit()
+
+save_as_docx(table1_modelled, path = paste(output_dir, '/table1_modelled.docx',sep=""))
+
+#Combine with oringal table 1 in excel
+table1_combined <- table1_df %>%
+  left_join(table1_modelled_df %>% 
+              rename(`Sex Disaggregation Available (w/ Modelled)`=`Sex Disaggregation Available`, 
+                     `Any Data Available (w/ Modelled)`=`Any Data Available`))
+
+write_excel_csv(table1_combined, paste(output_dir, '/table1_combined.csv',sep=""))
+```

@@ -305,6 +305,9 @@ un_pull <- function(series,start, end) {
 
 ```
 
+
+
+
 Download sex disaggregated.
 ```{r}
 
@@ -374,6 +377,157 @@ for (series in list_df$code1) {
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
       write_excel_csv(paste(raw_dir,'/sdg_data/',series,'.csv',sep=""))
+
+  }
+
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+
+}
+
+```
+
+
+# Modelled estiamtes
+
+Reclassify data in this section by giving credit for modelled data
+
+```{r api_downloadm, echo=FALSE}
+
+# now we will loop through the list of indicators and download the SDG databases
+
+#define function to pull data from UN Stats and return
+un_pull_sex_disag_modelled <- function(series,start, end) {
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+    read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
+    mutate(date=TimePeriod ,
+           sex=`[Sex]`,
+           Nature=`[Nature]`,
+           geoAreaCode =as.character(GeoAreaCode) ) %>%
+    left_join(iso3c) %>%
+    right_join(iso_empty) %>%
+    mutate(available=!is.na(Value),  #check whether indicator is available
+           quality=case_when(
+             (available & Nature=='C') ~ 1,
+             (available & Nature=='CA') ~ 1,
+             (available & (Nature=='E' | Nature=='G')) ~ 1,
+             (available & Nature=='M') ~ 1,
+              Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
+             !available ~ 0
+           )) %>%
+    group_by(date, sex) %>%
+    mutate(available_year=(max(available, na.rm=T)==1),
+           quality=if_else(available_year==FALSE,as.numeric(NA),quality)) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
+    group_by(iso3c, date, sex) %>%
+    summarise(ind_value=mean(as.numeric(Value ), na.rm=T),
+              ind_metadata=first(Nature),
+              ind_quality=mean(quality, na.rm=T)
+              ) 
+}  
+
+un_pull_modelled <- function(series,start, end) {
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
+    read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
+        mutate(date=TimePeriod,
+               Nature=`[Nature]`,
+           geoAreaCode =as.character(GeoAreaCode) ) %>%
+    left_join(iso3c) %>%
+    right_join(iso_empty) %>%
+    mutate(available=!is.na(Value ),  #check whether indicator is available
+           quality=case_when(
+             (available & Nature=='C') ~ 1,
+             (available & Nature=='CA') ~ 1,
+             (available & (Nature=='E' | Nature=='G')) ~ 1,
+             (available & Nature=='M') ~ 1,
+             Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
+             !available ~ 0
+           )) %>%
+    group_by(date) %>%
+    mutate(available_year=(max(available, na.rm=T)==1),
+           quality=if_else(available_year==FALSE,as.numeric(NA),quality)) %>% #check if indicator is available at all for that year for any country.  If not, then do not penalize countries for not reporting.
+    group_by(iso3c, date) %>%
+    summarise(ind_value=mean(as.numeric(Value ), na.rm=T),
+              ind_metadata=first(Nature),
+              ind_quality=mean(quality, na.rm=T)
+              ) 
+}  
+
+
+
+
+```
+
+
+
+
+Download sex disaggregated.
+```{r}
+
+list_gender_df <- list_df %>%
+  left_join(indicators_list_df %>% rename(code1=Code)) %>%
+  filter(Gender_Breakdown==1)
+
+for (series in list_gender_df$code1) {
+  tryCatch({
+  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'_sex_disagg_modelled.csv',sep=""))) {
+    print(series)
+
+
+  #Sys.sleep(60)
+    #create a temporary database that will have the value, metadata info, and quality measure for each year and couuntry.
+    indicators_df <- list_df %>%
+      filter(code1==series) %>%
+      mutate(
+      values = map(
+        code1,
+        un_pull_sex_disag_modelled,'2010','2020' )
+      ) %>%
+      unnest(values) %>%
+      select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality, sex) %>%
+      write_excel_csv(paste(raw_dir,'/sdg_data/',series,'_sex_disagg_modelled.csv',sep=""))
+
+  }
+
+}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
+
+}
+
+```
+
+
+
+Check if any info available
+
+```{r}
+
+list_df<- list_df[seq(dim(list_df)[1],1),]
+
+#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
+#loop through all sdg indicators and append to a database containing the value, metadata info, and quality measure for each year and couuntry.
+for (series in list_df$code1) {
+  tryCatch({
+  if (!file.exists(paste(raw_dir,'/sdg_data/',series,'_modelled.csv',sep=""))) {
+    print(series)
+
+  # #get the raw data  
+  # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&pageSize=20000',sep=""), flatten = TRUE)$data %>%
+  #   as_tibble() %>%
+  #   mutate(date=timePeriodStart) %>%
+  #   right_join(iso_empty) %>%
+  #   mutate(across(is_list,as.character)) %>%
+  #  write_excel_csv(paste(raw_dir,'/sdg_data/',series,'_raw.csv',sep=""))
+  
+  #Sys.sleep(60)
+    #create a temporary database that will have the value, metadata info, and quality measure for each year and couuntry.
+    indicators_df <- list_df %>%
+      filter(code1==series) %>%
+      mutate(
+      values = map(
+        code1,
+        un_pull_modelled,'2010','2020' )
+      ) %>%
+      unnest(values) %>%
+      select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
+      write_excel_csv(paste(raw_dir,'/sdg_data/',series,'_modelled.csv',sep=""))
 
   }
 
