@@ -113,7 +113,7 @@ The [2030 Agenda for Sustainable Development](https://sdgs.un.org/2030agenda) la
 
 However, countries are falling short on reporting on these indicators.  This article will diagnose the reasons for missing gender data: (1) lack of core/foundational surveys/census or relevant admin data source (2) lack of specialized surveys (3) flawed surveys/MIS (questionnaire design or bad forms in admin data) (4) lack of availability of data/stats from surveys/census/admin sources – so data exists but not easy to get the data/stats [poorly disseminated].
 
-To begin, a discussion of the scope of missing data is given.  Data is largely sourced from the UN Global SDG database.  A set of roughly 91 indicators are investigated which are either part of SDG 5 on gender equity, or else are an SDG indicator that calls for a specific breakdown by sex.  
+To begin, a discussion of the scope of missing data is given.  Data is largely sourced from the UGepecific breakdown by sex.  
 
 Next, for each country, the share of these indicators that are available over a five year period from 2015 to 2020 are assessed.  Globally, countries have a value for less than 40% of these indicators on average during this time period.  For tier 1 indicators, the average is slightly higher with countries having a recent value for around 44% of the indicators.  For tier 2 indicators, the average country has a recent value for only 27% of the indicators.  For Goal 5 specifically, the average country has a recent value for around 34% of the indicators.
 
@@ -132,7 +132,8 @@ sdg_tab_merge <- sdg_tab %>%
   #filter(!is.na(Code)) %>%
   transmute(ccode=ccode,
             code1=Code,
-            code=SDG)
+            code=SDG,
+            Gender_Breakdown=Gender_Breakdown)
 
 #get a list of all SDG indicators
 indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
@@ -258,7 +259,7 @@ We give countries no credit for modeled data, because the country did not produc
   
 When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
 
-```{r save, echo=FALSE, message=FALSE, warning=FALSE}
+```{r save, echo=FALSE, message=FALSE, warning=FALSE, show_col_types = FALSE}
 
 country_metadata <- wbstats::wb_countries() %>%
   filter(region!="Aggregates")
@@ -345,13 +346,16 @@ un_sdg_df <- un_sdg_df %>%
 
 #save the data file
   
-write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
+un_sdg_df<- un_sdg_df %>%
+    left_join(sdg_tab_merge)  #merge on special code for aggregating
 
+
+write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
 
 ```
 
 
-```{r saver, eval=FALSE, include=FALSE}
+```{r saver, eval=FALSE, include=FALSE, show_col_types = FALSE}
 
 #function to create scored data
 
@@ -359,7 +363,6 @@ write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
 un_aki_fun <- function(date_start, date_end) {
   
   global <- un_sdg_df %>%
-    left_join(sdg_tab_merge) %>% #merge on special code for aggregating
     filter(between(date,date_start,date_end) ) %>%
     filter(!is.na(ind_quality)) %>%
     group_by(iso3c, ccode,goal) %>%
@@ -377,7 +380,6 @@ un_aki_fun <- function(date_start, date_end) {
            goal="Combined")
   
     tier1 <- un_sdg_df %>%
-      left_join(sdg_tab_merge) %>% #merge on special code for aggregating
       filter(between(date,date_start,date_end) ) %>%
       filter(!is.na(ind_quality)) %>%
       filter(code1 %in% tier1_list) %>% #get just tier1 indicators  
@@ -396,7 +398,6 @@ un_aki_fun <- function(date_start, date_end) {
              goal="Tier 1")
     
     tier2 <- un_sdg_df %>%
-      left_join(sdg_tab_merge) %>% #merge on special code for aggregating
       filter(between(date,date_start,date_end) ) %>%
       filter(!is.na(ind_quality)) %>%
       filter(code1 %in% tier2_list) %>% #get just tier1 indicators  
@@ -415,7 +416,6 @@ un_aki_fun <- function(date_start, date_end) {
              goal="Tier 2")
   
    goal <- un_sdg_df %>%
-    left_join(sdg_tab_merge) %>% #merge on special code for aggregating
     filter(between(date,date_start,date_end) ) %>%
     filter(!is.na(ind_quality)) %>%
     group_by(iso3c, ccode,goal) %>%
@@ -1289,7 +1289,7 @@ avail_plt_df5 %>%
 ## Coverage Gaps for SDG Indicators requiring Gender Breakdown
 
 
-```{r readgender}
+```{r readgender, echo=FALSE, show_col_types=FALSE}
 
 
 
@@ -1410,6 +1410,7 @@ disagg_plt_df <- sdg_gender_disagg_df %>%
     ) %>%
   mutate(ccode=str_remove(ccode,'ccode.'),
          ccode=as.numeric(ccode)) %>%
+  left_join(sdg_tab_merge) %>%
   left_join(list_df %>% select(ccode,code, description1, goal)) %>%
   filter(sex %in% c("FEMALE", "Any")) %>%
   mutate(sex=if_else(sex=="FEMALE","Female",sex),
@@ -1448,6 +1449,10 @@ For indicators that require a breakdown by sex, in several cases there are large
 
 ```{r table}
 
+metainfo <- list_df %>% 
+  left_join(sdg_tab_merge) %>%
+  select(ccode, code, description, goal, tier, Gender_Breakdown)
+
 disagg_tab_df <- sdg_gender_disagg_df %>%
   pivot_longer(
       cols=contains("."),
@@ -1456,7 +1461,7 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     ) %>%
   mutate(ccode=str_remove(ccode,'ccode.'),
          ccode=as.numeric(ccode)) %>%
-  right_join(list_df %>% select(ccode, code, description, goal, tier)) %>%
+  right_join(metainfo ) %>%
   filter(sex %in% c("FEMALE", "Any")) %>%
   mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
          Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
@@ -1474,8 +1479,12 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
   )
 
 table1_df <- disagg_tab_df %>%
+  mutate(`Sex Disaggregation Available`=if_else(Gender_Breakdown==0,as.numeric(NA),`Sex Disaggregation Available`)) %>% #mark as missing observations that are not supposed to have gender breakdown (i.e. maternal mortaility)  
   select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
+  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`),0,`Sex Disaggregation Available`),
+         `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
+         ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
   select(-ccode) %>%
   arrange(as.numeric(Goal), Indicator) 
@@ -2298,6 +2307,11 @@ un_sdg_df_modelled <- un_sdg_df_modelled %>%
   mutate(goal=as.character(goal)) %>%
   mutate(ind_quality=if_else(ind_quality.oecd>ind_quality,ind_quality.oecd,ind_quality, ind_quality )) #replace value with OECD value if it exists
 
+
+un_sdg_df_modelled <- un_sdg_df_modelled %>%
+  left_join(sdg_tab_merge) #add in special codes for grouping indicators (ccode)
+
+
 #save the data file
   
 write_excel_csv(un_sdg_df_modelled, paste(output_dir, '/un_sdg_df_modelled.csv',sep=""))
@@ -2394,7 +2408,6 @@ gender_disagg_empty <- gender_df_empty %>% mutate(sex='FEMALE') %>%
 #create database of gender indicators whether they exist at all
 
   sdg_gender_exists_df <- un_sdg_df_modelled  %>%
-    left_join(sdg_tab_merge) %>% #add ccode for specialized indicator grouping
     filter(between(date,lower_year,upper_year) ) %>%
     filter(!is.na(ind_quality)) %>%
     right_join(gender_df_empty) %>%
@@ -2419,6 +2432,10 @@ sdg_gender_disagg_df <- sdg_gender_disagg_df %>%
 
 ```{r tablemod}
 
+metainfo <- list_df %>% 
+  left_join(sdg_tab_merge) %>%
+  select(ccode, code, description, goal, tier, Gender_Breakdown)
+
 disagg_tab_df <- sdg_gender_disagg_df %>%
   pivot_longer(
       cols=contains("."),
@@ -2427,7 +2444,7 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     ) %>%
   mutate(ccode=str_remove(ccode,'ccode.'),
          ccode=as.numeric(ccode)) %>%
-  right_join(list_df %>% select(ccode, code, description, goal, tier)) %>%
+  right_join(metainfo) %>%
   filter(sex %in% c("FEMALE", "Any")) %>%
   mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
          Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
@@ -2444,9 +2461,15 @@ disagg_tab_df <- sdg_gender_disagg_df %>%
     Description=description
   )
 
+
 table1_modelled_df <- disagg_tab_df %>%
+  mutate(`Sex Disaggregation Available`=if_else(Gender_Breakdown==0,as.numeric(NA),`Sex Disaggregation Available`)) %>% #mark as missing observations that are not supposed to have gender breakdown (i.e. maternal mortaility)  
   select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
+  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`),0,`Sex Disaggregation Available`),
+         `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
+         ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
+
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
   select(-ccode) %>%
   arrange(as.numeric(Goal), Indicator) 

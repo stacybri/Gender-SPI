@@ -258,6 +258,7 @@ un_pull_sex_disag <- function(series,start, end) {
            quality=case_when(
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
+             (available & is.na(Nature)) ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
              (available & Nature=='M') ~ 0,
               Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
@@ -285,6 +286,7 @@ un_pull <- function(series,start, end) {
            quality=case_when(
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
+             (available & is.na(Nature)) ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
              (available & Nature=='M') ~ 0,
              Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
@@ -409,6 +411,7 @@ un_pull_sex_disag_modelled <- function(series,start, end) {
            quality=case_when(
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
+             (available & is.na(Nature)) ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
              (available & Nature=='M') ~ 1,
               Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
@@ -436,6 +439,7 @@ un_pull_modelled <- function(series,start, end) {
            quality=case_when(
              (available & Nature=='C') ~ 1,
              (available & Nature=='CA') ~ 1,
+             (available & is.na(Nature)) ~ 1,
              (available & (Nature=='E' | Nature=='G')) ~ 1,
              (available & Nature=='M') ~ 1,
              Nature=='N' ~ as.numeric(NA), #these indicators aren't relevenat for countries.
