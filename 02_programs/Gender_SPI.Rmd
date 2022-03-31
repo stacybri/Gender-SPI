@@ -2469,7 +2469,6 @@ table1_modelled_df <- disagg_tab_df %>%
   mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`),0,`Sex Disaggregation Available`),
          `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
          ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
-
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
   select(-ccode) %>%
   arrange(as.numeric(Goal), Indicator) 
