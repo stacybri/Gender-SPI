@@ -205,9 +205,10 @@ table1dat <- list_df %>%
     Indicator=code,
     Description=description,
     Tier=tier,
-    `Sub-Description`=description1
+    `Sub-Description`=description1,
+    Gender_Breakdown=Gender_Breakdown
   ) %>%
-  group_by(ccode, Goal, Indicator, Description, Tier) %>%
+  group_by(ccode, Goal, Indicator, Description, Tier, Gender_Breakdown) %>%
   summarise(`Sub-Indicators`=paste(`Sub-Description`,collapse="; /n ")) %>%
   distinct() %>%
   select(-ccode)
@@ -1482,11 +1483,11 @@ table1_df <- disagg_tab_df %>%
   mutate(`Sex Disaggregation Available`=if_else(Gender_Breakdown==0,as.numeric(NA),`Sex Disaggregation Available`)) %>% #mark as missing observations that are not supposed to have gender breakdown (i.e. maternal mortaility)  
   select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
-  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`),0,`Sex Disaggregation Available`),
+  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`) & Gender_Breakdown==1,0,`Sex Disaggregation Available`),
          `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
          ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
-  select(-ccode) %>%
+  select(-ccode, - Gender_Breakdown) %>%
   arrange(as.numeric(Goal), Indicator) 
 
 table1 <- table1_df %>%
@@ -2466,11 +2467,11 @@ table1_modelled_df <- disagg_tab_df %>%
   mutate(`Sex Disaggregation Available`=if_else(Gender_Breakdown==0,as.numeric(NA),`Sex Disaggregation Available`)) %>% #mark as missing observations that are not supposed to have gender breakdown (i.e. maternal mortaility)  
   select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
   merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
-  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`),0,`Sex Disaggregation Available`),
+  mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`) & Gender_Breakdown==1,0,`Sex Disaggregation Available`),
          `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
          ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
   select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
-  select(-ccode) %>%
+  select(-ccode, -Gender_Breakdown) %>%
   arrange(as.numeric(Goal), Indicator) 
 
 table1_modelled <- table1_modelled_df %>%

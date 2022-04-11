@@ -248,7 +248,7 @@ for (series in list_df$code1) {
 un_pull_sex_disag <- function(series,start, end) {
   # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
     read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
-    mutate(date=TimePeriod ,
+    mutate(date=as.numeric(TimePeriod) ,
            sex=`[Sex]`,
            Nature=`[Nature]`,
            geoAreaCode =as.character(GeoAreaCode) ) %>%
@@ -277,7 +277,7 @@ un_pull_sex_disag <- function(series,start, end) {
 un_pull <- function(series,start, end) {
   # jsonlite::fromJSON(paste('https://unstats.un.org/SDGAPI/v1/sdg/Series/Data?seriesCode=',series,'&timePeriodStart=',start,'&timePeriodEnd=',end,'&pageSize=10000',sep=""), flatten = TRUE)$data %>%
     read_csv(paste(raw_dir,'/sdg_data/raw/',series,'_raw.csv',sep="")) %>%
-        mutate(date=TimePeriod,
+        mutate(date=as.numeric(TimePeriod),
                Nature=`[Nature]`,
            geoAreaCode =as.character(GeoAreaCode) ) %>%
     left_join(iso3c) %>%
