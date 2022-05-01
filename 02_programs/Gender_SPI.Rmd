@@ -1868,27 +1868,36 @@ sources_categorized_df <- source_df_long %>%
     )
 
 sources_explained <- sources_categorized_df %>%
-  group_by(data_type, code, code1, description, description1) %>%
+  group_by(goal, data_type, code, code1, description, description1) %>%
   summarise(n=sum(n),
-            `Example Source`=first(Source)) %>%
+            `Example Source`=first(Source))  %>% 
+    group_by(goal, code, code1, description, description1) %>%
+     mutate(datatype_num = paste0(data_type, " (", n, ")"),
+     datatype_con = paste0(datatype_num, collapse = ", ")) %>%
+     summarise(code = first(code),
+               code1 = first(code1),
+               description = first(description),
+               description1 = first(description1),
+               datatype_con = first(datatype_con),
+               `Example Source` = first(`Example Source`)) %>%
   left_join(un_sdg_meta_wide, by = "code1") %>%
-  arrange(code) 
+  arrange(as.numeric(goal), code) 
 
   
 sources_explained %>%
-  select(code, code1, description, data_type, n, source_share, `Example Source`) %>%
-  rename('Indicator' = 'code',
+  select(goal, code, code1, description, datatype_con, source_share, `Example Source`) %>%
+  rename('Goal' = 'goal',
+         'Indicator' = 'code',
          'Code' = 'code1',
          'Description' = 'description',
-         'Data Type' = 'data_type',
-         'Number of country-year surveys of the type' = 'n',
+         'Data Type' = 'datatype_con',
          'Nature of data classification' ='source_share') %>%
   flextable() %>%
     add_header_lines('Table Annex. Data Sources for SDG Gender Indicators') %>%
-    merge_v(j='Indicator') %>%
-    theme_vanilla() #%>%
-#  FitFlextableToPage() %>%`
-#    autofit()
+    merge_v(j=c('Goal', 'Indicator')) %>%
+    theme_vanilla() %>%
+  FitFlextableToPage() %>%
+    autofit()
 
 
 
