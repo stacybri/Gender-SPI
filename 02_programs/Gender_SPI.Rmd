@@ -1897,11 +1897,8 @@ sources_explained %>%
     merge_v(j=c('Goal', 'Indicator')) %>%
     theme_vanilla() %>%
   FitFlextableToPage() %>%
-    autofit()
-
-
-
-save_as_docx(sources_explained, path = paste(output_dir, '/tableannex.docx',sep=""))
+ #   autofit() %>%
+  save_as_docx( path = paste(output_dir, '/tableannex.docx',sep=""))
 
 
 ```
