@@ -1937,324 +1937,324 @@ print(sources_df_plt$plot)
 ```
 
 
-```{r sourcetab}
-
-
-#use map to loop through SDG indicators and plot top 5 data sources for each indicator
-sources_df_tab_list <- sources_df$description1 
-
-sources_tab_fun <- function(variables) {
-
-  sdg_code<- list_df[which(list_df$description1==variables),]$code
-  
-   sources_explained %>%
-     ungroup() %>%
-    filter(description1==variables) %>%
-    rename(Source=data_type) %>%
-    select(Source, n, `Example Source`) %>%
-    rename(`Number of Times Used`=n) %>%
-    flextable() %>% 
-    add_header_lines(variables) %>%
-    add_header_lines(paste0("Indicator sources for SDG ", sdg_code,". ")) %>% 
-    theme_vanilla() %>% 
-    add_footer_lines(values = "Source: UN Global SDG Database.") %>% 
-    autofit()
-  
-    
-  
-
-}
- 
-sources_tab_fun(sources_df_tab_list[1])
-# for (i in c(1:length(sources_df_tab_list))) {
-#   sources_tab_fun(sources_df_tab_list[i])
-# 
-# }
-```
-
-```{r} 
-
-```
-
-```{r} 
-sources_tab_fun(sources_df_tab_list[2])
-```
-
-```{r} 
-
-sources_tab_fun(sources_df_tab_list[3])
-```
-
-```{r} 
-sources_tab_fun(sources_df_tab_list[4])
-```
-
-```{r} 
-sources_tab_fun(sources_df_tab_list[5])
-```
-
-```{r} 
-sources_tab_fun(sources_df_tab_list[6])
-```
+<!-- ```{r sourcetab} -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[7])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[8])
-```
+<!-- #use map to loop through SDG indicators and plot top 5 data sources for each indicator -->
+<!-- sources_df_tab_list <- sources_df$description1  -->
 
-```{r} 
-
-sources_tab_fun(sources_df_tab_list[9])
-```
+<!-- sources_tab_fun <- function(variables) { -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[10])
-```
+<!--   sdg_code<- list_df[which(list_df$description1==variables),]$code -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[11])
-```
+<!--    sources_explained %>% -->
+<!--      ungroup() %>% -->
+<!--     filter(description1==variables) %>% -->
+<!--     rename(Source=datatype_con) %>% -->
+<!--     select(Source, n, `Example Source`) %>% -->
+<!--     rename(`Number of Times Used`=n) %>% -->
+<!--     flextable() %>%  -->
+<!--     add_header_lines(variables) %>% -->
+<!--     add_header_lines(paste0("Indicator sources for SDG ", sdg_code,". ")) %>%  -->
+<!--     theme_vanilla() %>%  -->
+<!--     add_footer_lines(values = "Source: UN Global SDG Database.") %>%  -->
+<!--     autofit() -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[12])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[13])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[14])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[15])
-```
+<!-- } -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[16])
-```
+<!-- sources_tab_fun(sources_df_tab_list[1]) -->
+<!-- # for (i in c(1:length(sources_df_tab_list))) { -->
+<!-- #   sources_tab_fun(sources_df_tab_list[i]) -->
+<!-- #  -->
+<!-- # } -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[17])
-```
+<!-- ```{r}  -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[18])
-```
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[19])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[2]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[20])
-```
+<!-- ```{r}  -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[21])
-```
+<!-- sources_tab_fun(sources_df_tab_list[3]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[22])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[4]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[23])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[5]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[24])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[6]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[25])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[7]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[26])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[8]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[27])
-```
+<!-- ```{r}  -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[28])
-```
+<!-- sources_tab_fun(sources_df_tab_list[9]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[29])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[10]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[30])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[11]) -->
+<!-- ``` -->
 
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[12]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[31])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[13]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[32])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[14]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[33])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[15]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[34])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[16]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[35])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[17]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[36])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[18]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[37])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[19]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[38])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[20]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[39])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[21]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[40])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[22]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[41])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[23]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[42])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[24]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[43])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[25]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[44])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[26]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[45])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[27]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[46])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[28]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[47])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[29]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[48])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[30]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[49])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[50])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[31]) -->
+<!-- ``` -->
 
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[32]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[51])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[33]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[52])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[34]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[53])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[35]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[54])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[36]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[55])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[37]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[56])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[38]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[57])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[39]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[58])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[40]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[59])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[41]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[60])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[42]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[61])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[43]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[62])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[44]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[63])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[45]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[64])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[46]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[65])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[47]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[66])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[48]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[67])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[49]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[68])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[50]) -->
+<!-- ``` -->
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[69])
-```
 
-```{r} 
-sources_tab_fun(sources_df_tab_list[70])
-```
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[51]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[52]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[53]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[54]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[55]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[56]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[57]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[58]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[59]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[60]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[61]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[62]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[63]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[64]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[65]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[66]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[67]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[68]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[69]) -->
+<!-- ``` -->
+
+<!-- ```{r}  -->
+<!-- sources_tab_fun(sources_df_tab_list[70]) -->
+<!-- ``` -->
 
 # Annex
 
