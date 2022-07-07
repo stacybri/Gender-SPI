@@ -185,7 +185,7 @@ sources_categorized_df <- source_df_long %>%
             grepl('Census|censo|recensement', Source) ~ "Census",
             grepl('Time Use|Time use|Use Of Time|Time', Source) ~ "Time Use Survey",
             grepl('Statistical Yearbook|NSO|CSO|National Statistic|Ministry|Statistical Office|Bureau Of Statistics', Source) ~ "National Statistical Office",
-            grepl('World Bank|UNAIDS|UNESCO|ILO|WHO|World Health Organization|World Development Indicators|World Inequality Database|Eurostat|UNSD', Source) ~ "International Organization",
+            grepl('World Bank|UNAIDS|UNESCO|ILO|WHO|World Health Organization|World Development Indicators|World Inequality Database|Eurostat|UNSD|UN Women', Source) ~ "International Organization",
             TRUE ~ "Other")
     )
 

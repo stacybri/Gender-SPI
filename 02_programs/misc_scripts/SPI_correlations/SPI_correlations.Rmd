@@ -1,0 +1,326 @@
+---
+title: "Gender SPI Correlation Analysis"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(haven)
+library(here)
+library(plotly)
+library(ggpmisc)
+library(ggthemes)
+library(ggtext)
+library(estimatr)
+
+```
+
+```{r global}
+
+combined_df <- read_csv('Gender_correlations_data.csv') %>%
+  mutate(availability=100*ind_quality) %>%
+  group_by(iso3c, goal) %>%
+  mutate(max_SPI=mean(IQ.SPI.OVRL, na.rm=TRUE)) %>%
+  ungroup() %>%
+  filter(!is.na(max_SPI)) 
+
+
+#add equations to plots
+eq_plot_txt <- function(data) {
+  eq <- lm_robust(outcome ~ availability, data=data, se_type='HC2')
+  coef <- coef(eq)
+  std_err <- sqrt(diag(vcov(eq)))
+  r_2<- summary(eq)$r.squared
+  sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
+
+}
+
+#add equations to plots
+eq_plot_txt_reverse <- function(data, inp, var) {
+  eq <- lm_robust(inp ~ var, data=data, se_type='HC2')
+  coef <- coef(eq)
+  std_err <- sqrt(diag(vcov(eq)))
+  r_2<- summary(eq)$r.squared
+  sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
+
+}
+
+regions <- unique(combined_df$region)
+
+```
+
+
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+This dashboard is meant to help study relationships between availability of Gender SDGs, the SPI overall score, and GDP per capita. It allows a user to filter out countries based on GDP per capita using selectors below.   
+
+There is a 3D scatter plot to see all three relationships at once, as well as bivariate scatter plots.
+
+Modify the range of GDP per capita for countries included below:
+
+```{r}
+  sliderInput("range", "GDP Range:",
+                  min = 0, max = 150000,
+                  value = c(0,150000))
+```
+
+Modify the selected regions below:
+
+```{r}
+
+
+
+  selectizeInput("regions", "Regions:",
+                choices=regions,
+                selected=regions,
+                multiple=TRUE)
+```
+
+Pick Year:
+
+```{r}
+
+
+
+  selectizeInput("year", "Year:",
+                choices=c(2010:2019),
+                selected=2019,
+                multiple=FALSE)
+```
+
+Pick Goal:
+
+```{r}
+
+
+
+  selectizeInput("goal_sel", "Goal:",
+                choices=c("Combined", "Tier 1",   "Tier 2",
+                          "1", "2", "3","4","5","8",
+                          "10","11", "16"),
+                selected="Combined",
+                multiple=FALSE)
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+
+### 3D Scatterplot 
+
+```{r}
+
+renderPlotly({
+  
+ plot_df <- combined_df %>%
+    filter(!is.na(NY.GDP.PCAP.PP.CD)) %>%
+    filter(region %in% input$regions) %>%
+    filter(date==input$year) %>%
+    filter(goal==input$goal_sel) %>%
+    filter(between(NY.GDP.PCAP.PP.CD, input$range[1],input$range[2])) 
+   
+  
+ fv <- plot_df   %>% lm(availability ~ log10(NY.GDP.PCAP.PP.CD),.) %>% fitted.values()
+ fv2 <- plot_df  %>% lm(IQ.SPI.OVRL ~ log10(NY.GDP.PCAP.PP.CD),.) %>% fitted.values()
+  
+
+  
+  fig <- plot_ly(plot_df, 
+                 x=~NY.GDP.PCAP.PP.CD,
+                 y=~IQ.SPI.OVRL,
+                 z=~availability,
+                 group=~country,
+                 text=~iso3c,
+                     hovertemplate = paste('<i>Country</i>: ',plot_df$country,
+                                           '<br><b>GDP per capita</b>: %{x:$,.0f}',
+                        '<br><b>SPI Overall Score</b>: %{y:.1f}<br>',
+                        '<b>Gender Data Availability</b>: %{z:.1f}%')
+                 ) %>%
+    add_text(name="ISO3C") %>%
+    add_trace(x = ~NY.GDP.PCAP.PP.CD, z = fv, y=fv2, mode = "lines", type='scatter3d',
+              name='Regression Line') %>%
+    layout(scene = list(title='Plot of GDP per capita, SPI Overall Scores and Availability of Gender SDG Indicators',
+                        xaxis = list(title = 'GDP per capita, PPP (logged)',
+                                     type = "log",
+                                     tickvals = list(0,100,1000,10000,100000),
+                                     rangemode="tozero"
+                                     ),
+                     yaxis = list(title = 'SPI Overall Score',
+                                  range=list(0,100)),
+                     zaxis = list(title = 'Availability of Gender SDG Indicators (%)',
+                                  range=list(0,100)),
+                     camera = list(
+                            up=list(x=0, y=0, z=1),
+                            center=list(x=0, y=0, z=0),
+                            eye=list(x=1.4, y=-2.3, z=1.4)
+                       
+                     )
+                     ))
+
+
+  fig 
+})
+```
+
+<!-- ### 3D Scatterplot - Human Capital Index -->
+
+<!-- ```{r} -->
+
+<!-- renderPlotly({ -->
+
+<!--  plot_df <- combined_df %>% -->
+<!--     filter(!is.na(HD.HCI.OVRL)) %>% -->
+<!--     filter(region %in% input$regions) %>% -->
+<!--     filter(between(HD.HCI.OVRL, input$range[1],input$range[2]))  -->
+
+
+<!--  fv <- plot_df   %>% lm(availability ~ HD.HCI.OVRL,.) %>% fitted.values() -->
+<!--  fv2 <- plot_df  %>% lm(IQ.SPI.OVRL ~ HD.HCI.OVRL,.) %>% fitted.values() -->
+
+
+
+<!--   fig <- plot_ly(plot_df,  -->
+<!--                  x=~HD.HCI.OVRL, -->
+<!--                  y=~IQ.SPI.OVRL, -->
+<!--                  z=~availability, -->
+<!--                  group=~country, -->
+<!--                  text=~iso3c, -->
+<!--                      hovertemplate = paste('<i>Country</i>: ',plot_df$country, -->
+<!--                                            '<br><b>Human Capital Index</b>: %{x:$,.0f}', -->
+<!--                         '<br><b>SPI Overall Score</b>: %{y:.1f}<br>', -->
+<!--                         '<b>Gender Data Availability</b>: %{z:.1f}%') -->
+<!--                  ) %>% -->
+<!--     add_text(name="ISO3C") %>% -->
+<!--     add_trace(x = ~HD.HCI.OVRL, z = fv, y=fv2, mode = "lines", type='scatter3d', -->
+<!--               name='Regression Line') %>% -->
+<!--     layout(scene = list(title='Plot of Human Capital Index, SPI Overall Scores and Availability of Gender SDG Indicators', -->
+<!--                         xaxis = list(title = 'Human Capital Index' -->
+<!--                                      ), -->
+<!--                      yaxis = list(title = 'SPI Overall Score', -->
+<!--                                   range=list(0,100)), -->
+<!--                      zaxis = list(title = 'Availability of Gender SDG Indicators (%)', -->
+<!--                                   range=list(0,100)), -->
+<!--                      camera = list( -->
+<!--                             up=list(x=0, y=0, z=1), -->
+<!--                             center=list(x=0, y=0, z=0), -->
+<!--                             eye=list(x=1.4, y=-2.3, z=1.4) -->
+
+<!--                      ) -->
+<!--                      )) -->
+
+
+<!--   fig  -->
+<!-- }) -->
+<!-- ``` -->
+
+### GDP per capita on Gender Availability
+
+
+```{r echo=FALSE, fig.height=7, fig.width=9, dpi=350}
+
+
+renderPlot({
+#plot SPI scores against availability
+gend_gdp_plt <-combined_df %>%
+  filter(between(NY.GDP.PCAP.PP.CD, input$range[1],input$range[2])) %>%
+  filter(region %in% input$regions) %>%
+    filter(date==input$year) %>%
+    filter(goal==input$goal_sel) %>%
+  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
+  geom_text(aes(label=iso3c)) +
+  geom_smooth(method='lm') +
+  theme_bw() + 
+  scale_x_log10(labels=scales::comma) +
+  xlab('GDP per capita, PPP (current international $), logged') +
+  ylab('Availability of Gender SDG Indicators (%)') +
+  geom_richtext(
+    aes(y = 87, x = 10000,label = eq_plot_txt_reverse(combined_df,availability, log10(NY.GDP.PCAP.PP.CD)), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(y=c(0,100)) +
+  labs(
+    title='Plot of GDP per capita and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: GDP per capita from the World Development Indicatrs (NY.GDP.PCAP.PP.CD).  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+  )
+
+gend_gdp_plt
+})
+```
+
+
+
+
+### GDP per capita and SPI Overall Score
+
+```{r, fig.width = 9, fig.height=7,dpi = 350}
+
+renderPlot({
+#plot SPI scores against availability
+spi_gdp_plt <-combined_df %>%
+  filter(between(NY.GDP.PCAP.PP.CD, input$range[1],input$range[2])) %>%
+  filter(region %in% input$regions) %>%
+    filter(date==input$year) %>%
+    filter(goal==input$goal_sel) %>%
+  ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=IQ.SPI.OVRL)) +
+  geom_text(aes(label=iso3c)) +
+  geom_smooth(method='lm') +
+  theme_bw() + 
+  scale_x_log10(labels=scales::comma) +
+  xlab('GDP per capita, PPP (current international $), logged') +
+  ylab('SPI Overall Score') +
+  geom_richtext(
+    aes(y = 10, x = 10000,label = eq_plot_txt_reverse(combined_df,IQ.SPI.OVRL, log10(NY.GDP.PCAP.PP.CD)), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(y=c(0,100)) +
+  labs(
+    title='Plot of GDP per capita and SPI Overall Score',
+    caption=str_wrap('Source: GDP per capita from the World Development Indicatrs (NY.GDP.PCAP.PP.CD).  SPI Overall Score from the World Development Indicators (IQ.SPI.OVRL).',100)
+  )
+
+spi_gdp_plt
+})
+```
+
+
+### SPI overall score on Gender Availability
+
+```{r, fig.width = 9, fig.height=7,dpi = 350}
+
+renderPlot({
+#plot SPI scores against availability
+gend_spi_plt <-combined_df %>%
+  filter(between(NY.GDP.PCAP.PP.CD, input$range[1],input$range[2])) %>%
+  filter(region %in% input$regions) %>%
+    filter(date==input$year) %>%
+    filter(goal==input$goal_sel) %>%
+  ggplot(aes(x=IQ.SPI.OVRL, y=availability)) +
+  geom_text(aes(label=iso3c)) +
+  geom_smooth(method='lm') +
+  theme_bw() +
+  xlab('SPI Overall Score') +
+  ylab('Availability of Gender SDG Indicators (%)') +
+  geom_richtext(
+    aes(x = 75, y = 5,label = eq_plot_txt_reverse(combined_df,availability, IQ.SPI.OVRL), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(x=c(0,100),
+                y=c(0,60)) +
+  labs(
+    title='Plot of SPI overall score and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: SPI Overall Score from the World Development Indicators (IQ.SPI.OVRL).  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+  )
+
+gend_spi_plt
+
+})
+```
+
+
