@@ -78,10 +78,10 @@ FitFlextableToPage <- function(ft, pgwidth = 6){
 #add equations to plots
 eq_plot_txt <- function(data, inp, var) {
   eq <- lm_robust(inp ~ var, data=data, se_type='HC2')
-  coef <- coef(eq)
-  std_err <- sqrt(diag(vcov(eq)))
-  r_2<- summary(eq)$r.squared
-  sprintf("y = %.3f + %.3f x, R<sup>2</sup> = %.3f <br>    (%.3f)   (%.3f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
+  coef <- round(coef(eq),2)
+  std_err <- round(sqrt(diag(vcov(eq))),2)
+  r_2<- round(summary(eq)$r.squared,2)
+  sprintf("y = %.2f + %.2f x, R<sup>2</sup> = %.2f <br>    (%.2f)   (%.2f)", coef[1], coef[2], r_2[1], std_err[1], std_err[2])
 
 }
 ```
@@ -821,7 +821,85 @@ avail_plt_df %>%
     color = "gray20", curvature = -0.3
   )
 
+#reg_avg %>% flextable()
 
+```
+
+
+
+Figure 1. Percentage of SDG Gender Indicators available between `r 2020-window` and 2020.  Each point corresponds to country By income group
+```{r avail_chart11}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df %>%
+  mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg)
+
+avail_plt_df <- avail_plt_df %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.1),
+    y1 = c(world_avg + 20, 20),
+    y2 = c(world_avg + 2, 35)
+  )
+
+avail_plt_df %>%
+  filter(!is.na(income_level)) %>%
+  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,
+             color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  theme_bw() +
+  coord_flip() +
+    expand_limits(y=c(0,100)) +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_level),
+     breaks=levels(avail_plt_df$income_level)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.35, y = 60, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 20, family = "Poppins", size = 4, color = "gray20",
+    label = "income level averages"
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
 
 ```
 
@@ -932,82 +1010,6 @@ global %>%
 ```
 
 
-
-Figure 1. Percentage of SDG Gender Indicators available between `r 2020-window` and 2020.  Each point corresponds to country By income group
-```{r avail_chart11}
-
-#calculate regional average
-inc_avg <-
-  avail_plt_df %>%
-  mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
-  filter(!is.na(income_level) & income_level != "Not classified") %>%
-  group_by(income_level) %>%
-  summarise(avg = mean(availability, na.rm = T)) %>%
-  arrange(-avg)
-
-avail_plt_df <- avail_plt_df %>%
-    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
-                                                       "Lower middle income", "Low income"))) 
-#set annotatino arrows
-arrows <-
-  tibble(
-    x1 = c(3.2, 1.5),
-    x2 = c(2.5, 1.1),
-    y1 = c(world_avg + 20, 20),
-    y2 = c(world_avg + 2, 35)
-  )
-
-avail_plt_df %>%
-  filter(!is.na(income_level)) %>%
-  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
-                                                       "Lower middle income", "Low income"))) %>%
-  arrange(income_level) %>%
-  ggplot(aes(y=availability, x=income_level,
-             color=income_level)) +
-  geom_segment(
-    data=inc_avg,
-    aes(x = income_level, xend = income_level,
-        y = world_avg, yend = avg),
-    size = 0.8
-  ) +
-  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
-  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
-  #geom_point(size = 3, alpha = 0.15) +
-  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
-  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
-  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
-  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
-  theme_bw() +
-  coord_flip() +
-    expand_limits(y=c(0,100)) +
-  ylab('SDG Gender Indicator Availability') +
-   scale_x_discrete(
-     limits=levels(avail_plt_df$income_level),
-     breaks=levels(avail_plt_df$income_level)
-   ) +
-  # scale_y_log10(
-  #   labels=scales::comma
-  # ) +
-  theme(
-    legend.position = 'none',
-    axis.title.y = element_blank(),
-    text = element_text(size=14) 
-  ) +
-  annotate( #annotations
-    "text", x = 3.35, y = 60, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
-    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
-  ) +
-  annotate(
-    "text", x = 1.4, y = 20, family = "Poppins", size = 4, color = "gray20",
-    label = "income level averages"
-  ) +
-  geom_curve( #add curves for annotatino
-    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
-    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
-    color = "gray20", curvature = -0.3
-  )
-
-```
 
 ```{r availabilitydat1}
 
@@ -1904,7 +1906,7 @@ Figure 3. Plot of SPI overall score on Availability of Gender SDG Indicators
 #plot SPI scores against availability
 gend_spi_plt <-combined_df %>%
   ggplot(aes(x=IQ.SPI.OVRL, y=availability)) +
-  geom_text(aes(label=iso3c)) +
+  geom_point(aes(fill=region),size=3, color='black',pch=21, size=5) +
   geom_smooth(method='lm') +
   theme_spi() +
   xlab('SPI Overall Score') +
@@ -1931,7 +1933,8 @@ gend_spi_plt
 #plot SPI scores against availability
 gend_spi_plt <-combined_df %>%
   ggplot(aes(x=IQ.SPI.PIL3, y=availability)) +
-  geom_text(aes(label=iso3c)) +
+  geom_point(aes(fill=region),size=3, color='black',pch=21, size=5) +
+
   geom_smooth(method='lm') +
   theme_spi() +
   xlab('Availability of All SDG Indicators (%) (SPI Pillar 3 Score)') +
@@ -1957,7 +1960,8 @@ gend_spi_plt
 #plot SPI scores against availability
 gend_gdp_plt <-combined_df %>%
   ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
-  geom_text(aes(label=iso3c)) +
+  geom_point(aes(fill=region),size=3, color='black',pch=21, size=5) +
+
   geom_smooth(method='lm') +
   theme_spi() + 
   scale_x_log10(labels=scales::comma) +
@@ -1979,7 +1983,8 @@ gend_gdp_plt
 #plot SPI scores against availability
 gend_gdp_plt2 <- avail_wbstats_df %>%
   ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=availability)) +
-  geom_text(aes(label=iso3c)) +
+  geom_point(aes(fill=region),size=3, color='black',pch=21, size=5) +
+
   geom_smooth(method='lm') +
   theme_spi() + 
   scale_x_log10(labels=scales::comma) +
@@ -2005,7 +2010,8 @@ gend_gdp_plt2
 #plot SPI scores against availability
 spi_gdp_plt <-combined_df %>%
   ggplot(aes(x=NY.GDP.PCAP.PP.CD, y=IQ.SPI.OVRL)) +
-  geom_text(aes(label=iso3c)) +
+  geom_point(aes(fill=region),size=3, color='black',pch=21, size=5) +
+
   geom_smooth(method='lm') +
   theme_spi() + 
   scale_x_log10(labels=scales::comma) +
@@ -2207,7 +2213,8 @@ modelsummary(models,
                              ),
              notes="",
              gof_map = gm,
-             escape = FALSE             
+             escape = FALSE,
+             fmt = 2
              )
 
 ```
