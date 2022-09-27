@@ -407,18 +407,6 @@
 "CHE",2020,"Switzerland","Europe & Central Asia","High income","5",0.538
 "CHE",2020,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2020,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2020,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2020,"Chile","Latin America & Caribbean","High income","Combined",0.333
 "CHL",2020,"Chile","Latin America & Caribbean","High income","Tier 1",0.444
 "CHL",2020,"Chile","Latin America & Caribbean","High income","Tier 2",0.269
@@ -2387,18 +2375,6 @@
 "TUV",2020,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2020,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2020,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2020,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2020,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.178
 "TZA",2020,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.278
 "TZA",2020,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.115
@@ -2555,18 +2531,6 @@
 "WSM",2020,"Samoa","East Asia & Pacific","Lower middle income","5",0.308
 "WSM",2020,"Samoa","East Asia & Pacific","Lower middle income","8",0
 "WSM",2020,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2020,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2020,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.111
 "YEM",2020,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.167
 "YEM",2020,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.077
@@ -3023,18 +2987,6 @@
 "CHE",2019,"Switzerland","Europe & Central Asia","High income","5",0.385
 "CHE",2019,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2019,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2019,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2019,"Chile","Latin America & Caribbean","High income","Combined",0.422
 "CHL",2019,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2019,"Chile","Latin America & Caribbean","High income","Tier 2",0.346
@@ -5003,18 +4955,6 @@
 "TUV",2019,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2019,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2019,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2019,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2019,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.2
 "TZA",2019,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.333
 "TZA",2019,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.115
@@ -5171,18 +5111,6 @@
 "WSM",2019,"Samoa","East Asia & Pacific","Lower middle income","5",0.308
 "WSM",2019,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2019,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2019,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2019,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.133
 "YEM",2019,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.222
 "YEM",2019,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.077
@@ -5639,18 +5567,6 @@
 "CHE",2018,"Switzerland","Europe & Central Asia","High income","5",0.308
 "CHE",2018,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2018,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2018,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2018,"Chile","Latin America & Caribbean","High income","Combined",0.444
 "CHL",2018,"Chile","Latin America & Caribbean","High income","Tier 1",0.611
 "CHL",2018,"Chile","Latin America & Caribbean","High income","Tier 2",0.346
@@ -7619,18 +7535,6 @@
 "TUV",2018,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.231
 "TUV",2018,"Tuvalu","East Asia & Pacific","Upper middle income","8",0.167
 "TUV",2018,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2018,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2018,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.4
 "TZA",2018,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.667
 "TZA",2018,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.231
@@ -7787,18 +7691,6 @@
 "WSM",2018,"Samoa","East Asia & Pacific","Lower middle income","5",0.308
 "WSM",2018,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2018,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2018,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2018,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.156
 "YEM",2018,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.278
 "YEM",2018,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.077
@@ -8255,18 +8147,6 @@
 "CHE",2017,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2017,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2017,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2017,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2017,"Chile","Latin America & Caribbean","High income","Combined",0.467
 "CHL",2017,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2017,"Chile","Latin America & Caribbean","High income","Tier 2",0.423
@@ -10235,18 +10115,6 @@
 "TUV",2017,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2017,"Tuvalu","East Asia & Pacific","Upper middle income","8",0.167
 "TUV",2017,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2017,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2017,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.378
 "TZA",2017,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.611
 "TZA",2017,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.231
@@ -10403,18 +10271,6 @@
 "WSM",2017,"Samoa","East Asia & Pacific","Lower middle income","5",0.154
 "WSM",2017,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2017,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2017,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2017,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.133
 "YEM",2017,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.278
 "YEM",2017,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -10871,18 +10727,6 @@
 "CHE",2016,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2016,"Switzerland","Europe & Central Asia","High income","8",0.5
 "CHE",2016,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2016,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2016,"Chile","Latin America & Caribbean","High income","Combined",0.422
 "CHL",2016,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2016,"Chile","Latin America & Caribbean","High income","Tier 2",0.346
@@ -12851,18 +12695,6 @@
 "TUV",2016,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2016,"Tuvalu","East Asia & Pacific","Upper middle income","8",0.167
 "TUV",2016,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2016,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2016,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.489
 "TZA",2016,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.722
 "TZA",2016,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.346
@@ -13019,18 +12851,6 @@
 "WSM",2016,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2016,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2016,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2016,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2016,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.222
 "YEM",2016,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.389
 "YEM",2016,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.115
@@ -13487,18 +13307,6 @@
 "CHE",2015,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2015,"Switzerland","Europe & Central Asia","High income","8",0.5
 "CHE",2015,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2015,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2015,"Chile","Latin America & Caribbean","High income","Combined",0.4
 "CHL",2015,"Chile","Latin America & Caribbean","High income","Tier 1",0.5
 "CHL",2015,"Chile","Latin America & Caribbean","High income","Tier 2",0.346
@@ -15467,18 +15275,6 @@
 "TUV",2015,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2015,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2015,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2015,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2015,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.356
 "TZA",2015,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.444
 "TZA",2015,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.308
@@ -15635,18 +15431,6 @@
 "WSM",2015,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2015,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2015,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2015,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2015,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.311
 "YEM",2015,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.611
 "YEM",2015,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.115
@@ -16103,18 +15887,6 @@
 "CHE",2014,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2014,"Switzerland","Europe & Central Asia","High income","8",0.5
 "CHE",2014,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2014,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2014,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2014,"Chile","Latin America & Caribbean","High income","Tier 1",0.5
 "CHL",2014,"Chile","Latin America & Caribbean","High income","Tier 2",0.269
@@ -18083,18 +17855,6 @@
 "TUV",2014,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2014,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2014,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2014,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2014,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.378
 "TZA",2014,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.5
 "TZA",2014,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.308
@@ -18251,18 +18011,6 @@
 "WSM",2014,"Samoa","East Asia & Pacific","Lower middle income","5",0.154
 "WSM",2014,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2014,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2014,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2014,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.333
 "YEM",2014,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.667
 "YEM",2014,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.115
@@ -18719,18 +18467,6 @@
 "CHE",2013,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2013,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2013,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2013,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2013,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2013,"Chile","Latin America & Caribbean","High income","Tier 1",0.5
 "CHL",2013,"Chile","Latin America & Caribbean","High income","Tier 2",0.269
@@ -20699,18 +20435,6 @@
 "TUV",2013,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2013,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2013,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2013,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2013,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.289
 "TZA",2013,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.444
 "TZA",2013,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.192
@@ -20867,18 +20591,6 @@
 "WSM",2013,"Samoa","East Asia & Pacific","Lower middle income","5",0.154
 "WSM",2013,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2013,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2013,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2013,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.267
 "YEM",2013,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.611
 "YEM",2013,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -21335,18 +21047,6 @@
 "CHE",2012,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2012,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2012,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2012,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2012,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2012,"Chile","Latin America & Caribbean","High income","Tier 1",0.5
 "CHL",2012,"Chile","Latin America & Caribbean","High income","Tier 2",0.269
@@ -23315,18 +23015,6 @@
 "TUV",2012,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2012,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2012,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2012,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2012,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.311
 "TZA",2012,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.5
 "TZA",2012,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.192
@@ -23483,18 +23171,6 @@
 "WSM",2012,"Samoa","East Asia & Pacific","Lower middle income","5",0.154
 "WSM",2012,"Samoa","East Asia & Pacific","Lower middle income","8",0.5
 "WSM",2012,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2012,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2012,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.222
 "YEM",2012,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.5
 "YEM",2012,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -23951,18 +23627,6 @@
 "CHE",2011,"Switzerland","Europe & Central Asia","High income","5",0.231
 "CHE",2011,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2011,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2011,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2011,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2011,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2011,"Chile","Latin America & Caribbean","High income","Tier 2",0.231
@@ -25931,18 +25595,6 @@
 "TUV",2011,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2011,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2011,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2011,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2011,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.311
 "TZA",2011,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.5
 "TZA",2011,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.192
@@ -26099,18 +25751,6 @@
 "WSM",2011,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2011,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2011,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2011,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2011,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.178
 "YEM",2011,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.389
 "YEM",2011,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -26567,18 +26207,6 @@
 "CHE",2010,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2010,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2010,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2010,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2010,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2010,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2010,"Chile","Latin America & Caribbean","High income","Tier 2",0.231
@@ -28547,18 +28175,6 @@
 "TUV",2010,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2010,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2010,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2010,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2010,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.311
 "TZA",2010,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.5
 "TZA",2010,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.192
@@ -28715,18 +28331,6 @@
 "WSM",2010,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2010,"Samoa","East Asia & Pacific","Lower middle income","8",0
 "WSM",2010,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2010,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2010,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.156
 "YEM",2010,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.333
 "YEM",2010,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -29183,18 +28787,6 @@
 "CHE",2009,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2009,"Switzerland","Europe & Central Asia","High income","8",0.333
 "CHE",2009,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2009,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2009,"Chile","Latin America & Caribbean","High income","Combined",0.356
 "CHL",2009,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2009,"Chile","Latin America & Caribbean","High income","Tier 2",0.231
@@ -31163,18 +30755,6 @@
 "TUV",2009,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2009,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2009,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2009,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2009,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.222
 "TZA",2009,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.389
 "TZA",2009,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.115
@@ -31331,18 +30911,6 @@
 "WSM",2009,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2009,"Samoa","East Asia & Pacific","Lower middle income","8",0
 "WSM",2009,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2009,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2009,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.156
 "YEM",2009,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.333
 "YEM",2009,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -31799,18 +31367,6 @@
 "CHE",2008,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2008,"Switzerland","Europe & Central Asia","High income","8",0.167
 "CHE",2008,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2008,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2008,"Chile","Latin America & Caribbean","High income","Combined",0.333
 "CHL",2008,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2008,"Chile","Latin America & Caribbean","High income","Tier 2",0.192
@@ -33779,18 +33335,6 @@
 "TUV",2008,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2008,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2008,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2008,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2008,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.222
 "TZA",2008,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.444
 "TZA",2008,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.077
@@ -33947,18 +33491,6 @@
 "WSM",2008,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2008,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2008,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2008,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2008,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.2
 "YEM",2008,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.444
 "YEM",2008,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -34415,18 +33947,6 @@
 "CHE",2007,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2007,"Switzerland","Europe & Central Asia","High income","8",0.167
 "CHE",2007,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2007,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2007,"Chile","Latin America & Caribbean","High income","Combined",0.311
 "CHL",2007,"Chile","Latin America & Caribbean","High income","Tier 1",0.556
 "CHL",2007,"Chile","Latin America & Caribbean","High income","Tier 2",0.154
@@ -36395,18 +35915,6 @@
 "TUV",2007,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.154
 "TUV",2007,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2007,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2007,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2007,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.267
 "TZA",2007,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.556
 "TZA",2007,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.077
@@ -36563,18 +36071,6 @@
 "WSM",2007,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2007,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2007,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2007,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2007,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.2
 "YEM",2007,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.444
 "YEM",2007,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -37031,18 +36527,6 @@
 "CHE",2006,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2006,"Switzerland","Europe & Central Asia","High income","8",0.167
 "CHE",2006,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2006,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2006,"Chile","Latin America & Caribbean","High income","Combined",0.289
 "CHL",2006,"Chile","Latin America & Caribbean","High income","Tier 1",0.5
 "CHL",2006,"Chile","Latin America & Caribbean","High income","Tier 2",0.154
@@ -39011,18 +38495,6 @@
 "TUV",2006,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2006,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2006,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2006,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2006,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.267
 "TZA",2006,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.556
 "TZA",2006,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.077
@@ -39179,18 +38651,6 @@
 "WSM",2006,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2006,"Samoa","East Asia & Pacific","Lower middle income","8",0.167
 "WSM",2006,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2006,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2006,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.2
 "YEM",2006,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.444
 "YEM",2006,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0.038
@@ -39647,18 +39107,6 @@
 "CHE",2005,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2005,"Switzerland","Europe & Central Asia","High income","8",0.167
 "CHE",2005,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2005,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2005,"Chile","Latin America & Caribbean","High income","Combined",0.178
 "CHL",2005,"Chile","Latin America & Caribbean","High income","Tier 1",0.389
 "CHL",2005,"Chile","Latin America & Caribbean","High income","Tier 2",0.038
@@ -41627,18 +41075,6 @@
 "TUV",2005,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2005,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2005,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2005,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2005,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.178
 "TZA",2005,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.389
 "TZA",2005,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.038
@@ -41795,18 +41231,6 @@
 "WSM",2005,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2005,"Samoa","East Asia & Pacific","Lower middle income","8",0
 "WSM",2005,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2005,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2005,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.133
 "YEM",2005,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.333
 "YEM",2005,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0
@@ -42263,18 +41687,6 @@
 "CHE",2004,"Switzerland","Europe & Central Asia","High income","5",0.154
 "CHE",2004,"Switzerland","Europe & Central Asia","High income","8",0.167
 "CHE",2004,"Switzerland","Europe & Central Asia","High income",NA,0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","Combined",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","Tier 1",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","Tier 2",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","1",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","10",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","16",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","2",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","3",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","4",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","5",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income","8",0
-"CHI",2004,"Channel Islands","Europe & Central Asia","High income",NA,0
 "CHL",2004,"Chile","Latin America & Caribbean","High income","Combined",0.156
 "CHL",2004,"Chile","Latin America & Caribbean","High income","Tier 1",0.389
 "CHL",2004,"Chile","Latin America & Caribbean","High income","Tier 2",0
@@ -44243,18 +43655,6 @@
 "TUV",2004,"Tuvalu","East Asia & Pacific","Upper middle income","5",0.077
 "TUV",2004,"Tuvalu","East Asia & Pacific","Upper middle income","8",0
 "TUV",2004,"Tuvalu","East Asia & Pacific","Upper middle income",NA,0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","Combined",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","Tier 1",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","Tier 2",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","1",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","10",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","16",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","2",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","3",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","4",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","5",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income","8",0
-"TWN",2004,"Taiwan, China","East Asia & Pacific","High income",NA,0
 "TZA",2004,"Tanzania","Sub-Saharan Africa","Lower middle income","Combined",0.133
 "TZA",2004,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 1",0.278
 "TZA",2004,"Tanzania","Sub-Saharan Africa","Lower middle income","Tier 2",0.038
@@ -44411,18 +43811,6 @@
 "WSM",2004,"Samoa","East Asia & Pacific","Lower middle income","5",0.077
 "WSM",2004,"Samoa","East Asia & Pacific","Lower middle income","8",0
 "WSM",2004,"Samoa","East Asia & Pacific","Lower middle income",NA,0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","Combined",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","Tier 1",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","Tier 2",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","1",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","10",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","16",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","2",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","3",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","4",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","5",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income","8",0
-"XKX",2004,"Kosovo","Europe & Central Asia","Upper middle income",NA,0
 "YEM",2004,"Yemen, Rep.","Middle East & North Africa","Low income","Combined",0.133
 "YEM",2004,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 1",0.333
 "YEM",2004,"Yemen, Rep.","Middle East & North Africa","Low income","Tier 2",0

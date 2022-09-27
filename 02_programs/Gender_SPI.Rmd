@@ -61,7 +61,7 @@ lower_year <- 2020-window
 
 # rerun the data
 rerun=FALSE
-
+cacher=TRUE
 ```
 
 ```{r programs}
@@ -258,7 +258,7 @@ We give countries no credit for modeled data, because the country did not produc
   
 When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
 
-```{r save, echo=FALSE, message=FALSE, warning=FALSE, show_col_types = FALSE}
+```{r save, echo=FALSE, message=FALSE, warning=FALSE, show_col_types = FALSE, cache=cacher}
 
 country_metadata <- wbstats::wb_countries() %>%
   filter(region!="Aggregates")
@@ -356,7 +356,7 @@ write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
 
 
 
-```{r readgender, echo=FALSE, show_col_types=FALSE}
+```{r readgender, echo=FALSE, show_col_types=FALSE, cache=cacher}
 
 
 
@@ -402,7 +402,7 @@ write_excel_csv(un_sdg_gender_df, paste(output_dir, '/un_sdg_gender_disagg_df.cs
 
 ```
 
-```{r gender_shape}
+```{r gender_shape, cache=cacher}
 
 
 span <- c(2004:2020)
@@ -411,8 +411,16 @@ span <- c(2004:2020)
 #create two empty datasets to merge onto
 ####
 
+#read list of iso3c codes for matching from UN (https://unstats.un.org/unsd/methodology/m49/)
+iso3c <- read_csv(paste(raw_dir,'metadata/iso_codes.csv', sep="/"),
+                  col_types=list(col_character(), col_character(), col_character())) %>%
+  select(iso3c) %>%
+  left_join(wbstats::wb_countries()) %>%
+  filter(!is.na(region))
+
+
 # start by creating empty dataset with country by year
-gender_df_empty <- bind_rows(replicate(length(span), wbstats::wbcountries(), simplify = FALSE), .id='date') %>%
+gender_df_empty <- bind_rows(replicate(length(span), iso3c, simplify = FALSE), .id='date') %>%
   mutate(date=as.numeric(date)+span[1]-1) %>%
   filter(region!="Aggregates") %>% # take out the aggregates (LAC, SAR, etc)
   select(iso3c, date)
@@ -473,7 +481,7 @@ write_excel_csv(un_sdg_combined_df, paste(output_dir, '/un_sdg_combined_df.csv',
 ```
 
 
-```{r saver, include=rerun}
+```{r saver, include=rerun, cache=cacher}
 
 #function to create scored data
 
@@ -1831,6 +1839,9 @@ write_excel_csv(tab_full,
                 paste(output_dir, '/table1_full.csv',sep=""))
 ```
 
+
+
+
 # Comparison of Gender Data Availability and SPI Scores
 
 Next, we assess how a country's overall statistical performance relates to the availability of gender data, and identified countries that may have strong systems overall but are underperforming on gender statistics.  To do so, we compare the availability of gender statistics to scores on the World Bank’s Statistical Performance Indicators (SPI).
@@ -1851,6 +1862,93 @@ with scores ranging from a low of 0 to a high of 100.
 
 There is a positive relationship between countries SPI overall scores and the availability of gender data as indicated in Figure 3.  The figure suggests that the countries statistical system, as measured by the SPI overall score, explains a little over 40% of the variation in the availability of Gender SDG Indicators.  This is based on the R-squared from a linear regression of the availability of the SDG gender indicators on the SPI overall score in 2019.  
 
+
+```{r spidf2020}
+
+#get overall gender data availability measure
+avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>%
+  mutate(availability=100*ind_quality) %>% #convert ind_quality measure which is 0-1 to percentage available by multiplying by 100
+  filter(date==2020 & goal=="Combined") #keep just most recent year
+
+#read in SPI data from WDI
+SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL','IQ.SPI.PIL3'),
+                           start_date = 2019) %>%
+   select(-date)
+
+wdi_df <- wbstats::wb_data(indicator=c( 
+                                       'NY.GDP.PCAP.PP.CD', 'SP.POP.TOTL',
+                                       'SG.LAW.INDX','NY.GDP.PCAP.KD',
+                                       'HD.HCI.OVRL','GE.EST'),
+                           start_date = 2020)
+
+#read in data on  GII and SIGI measures 
+gii_sigi_df <- readxl::read_excel(paste0(raw_dir, "/misc/GII_SIGI.xlsx")) %>%
+  rename(country=Country,
+         gii=`GII 2021`,
+         sigi=`SIGI 2019`)
+
+
+#combine data
+avail_wbstats_df <- avail_SPI_df %>%
+  left_join(gii_sigi_df) %>%
+  left_join(SPI_df) %>%
+  left_join(wdi_df) %>%
+  mutate(outcome=IQ.SPI.OVRL,
+         value=availability)
+
+combined_df <- avail_wbstats_df 
+
+combined_df_sv <- combined_df %>%
+  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi,NY.GDP.PCAP.KD) %>%
+  rename_with(~gsub(".","_",.x, fixed=TRUE)) 
+
+var.labels = c(IQ_SPI_OVRL="SPI Overall Score", 
+               availability='Gender SDG Availability', 
+               IQ_SPI_PIL3 = "Overall SDG Availability (SPI Pillar 3)", 
+               NY_GDP_PCAP_PP_CD = "GDP per capita, PPP (current international $)", 
+               SP_POP_TOTL='Total Population',
+               HD_HCI_OVRL = 'HUman Capital Index',
+               GE_EST = "WGI: Governance Effectiveness",
+               SG_LAW_INDX = "Women, Business, and Law",
+               gii ="GII",
+               sigi="SIGI",
+               NY_GDP_PCAP_KD="GDP per capita (constant 2015 US$)")
+
+label(combined_df_sv) = as.list(var.labels[match(names(combined_df_sv), names(var.labels))])
+
+label(combined_df_sv)
+
+combined_df %>%
+  #filter(!is.na(IQ.SPI.OVRL)) %>%
+  write_excel_csv(path=paste0(output_dir, '/SPI_Gender_SDG_data.csv'))
+
+#haven::write_dta((combined_df_sv %>% filter(!is.na(IQ.SPI.OVRL))), path=paste0(output_dir, '/SPI_Gender_SDG_data.dta'))
+haven::write_dta(combined_df_sv, path=paste0(output_dir, '/SPI_Gender_SDG_data.dta'))
+
+
+
+#get number of SDG indicators considered
+ind_lgth<-nrow(list_df)
+
+weighted_stats_gl <- combined_df %>%
+  summarise(wtd_availability=Hmisc::wtd.mean(availability, w=SP.POP.TOTL),
+            wtd_availability_under50=Hmisc::wtd.mean(availability<=50, w=SP.POP.TOTL),
+            unwtd_availability=mean(availability),
+            unwtd_availability_under50=mean(availability<=50))
+
+weighted_stats_gl
+
+weighted_stats_reg <- combined_df %>%
+  group_by(region) %>%
+  summarise(wtd_availability=Hmisc::wtd.mean(availability, w=SP.POP.TOTL),
+            wtd_availability_under50=Hmisc::wtd.mean(availability<=50, w=SP.POP.TOTL),
+            unwtd_availability=mean(availability),
+            unwtd_availability_under50=mean(availability<=50))
+
+weighted_stats_reg
+
+```
+
 ```{r spidf}
 
 #get overall gender data availability measure
@@ -1859,38 +1957,56 @@ avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>
   filter(date==2019 & goal=="Combined") #keep just most recent year
 
 #read in SPI data from WDI
-SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL','IQ.SPI.PIL3', 'NY.GDP.PCAP.PP.CD', 'SP.POP.TOTL', 'SG.LAW.INDX',
+SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL','IQ.SPI.PIL3', 
+                                       'NY.GDP.PCAP.PP.CD', 'SP.POP.TOTL',
+                                       'SG.LAW.INDX','NY.GDP.PCAP.KD',
                                        'HD.HCI.OVRL','GE.EST'),
                            start_date = 2019) 
 
 
+#read in data on  GII and SIGI measures 
+gii_sigi_df <- readxl::read_excel(paste0(raw_dir, "/misc/GII_SIGI.xlsx")) %>%
+  rename(country=Country,
+         gii=`GII 2021`,
+         sigi=`SIGI 2019`)
+
+
 #combine data
 avail_wbstats_df <- avail_SPI_df %>%
+  left_join(gii_sigi_df) %>%
   left_join(SPI_df) %>%
   mutate(outcome=IQ.SPI.OVRL,
          value=availability)
 
-combined_df <- avail_wbstats_df %>%
-  filter(!is.na(IQ.SPI.OVRL)) 
+combined_df <- avail_wbstats_df 
 
 combined_df_sv <- combined_df %>%
-  select(iso3c, country, region, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL) %>%
+  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi,NY.GDP.PCAP.KD) %>%
   rename_with(~gsub(".","_",.x, fixed=TRUE)) 
 
 var.labels = c(IQ_SPI_OVRL="SPI Overall Score", 
                availability='Gender SDG Availability', 
                IQ_SPI_PIL3 = "Overall SDG Availability (SPI Pillar 3)", 
                NY_GDP_PCAP_PP_CD = "GDP per capita, PPP (current international $)", 
-               SP_POP_TOTL='Total Population')
+               SP_POP_TOTL='Total Population',
+               HD_HCI_OVRL = 'HUman Capital Index',
+               GE_EST = "WGI: Governance Effectiveness",
+               SG_LAW_INDX = "Women, Business, and Law",
+               gii ="GII",
+               sigi="SIGI",
+               NY_GDP_PCAP_KD="GDP per capita (constant 2015 US$)")
 
 label(combined_df_sv) = as.list(var.labels[match(names(combined_df_sv), names(var.labels))])
 
 label(combined_df_sv)
 
-combined_df %>%
-  write_excel_csv(path=paste0(output_dir, '/SPI_Gender_SDG_data.csv'))
+#combined_df %>%
+  #filter(!is.na(IQ.SPI.OVRL)) %>%
+#  write_excel_csv(path=paste0(output_dir, '/SPI_Gender_SDG_data.csv'))
 
-haven::write_dta(combined_df_sv, path=paste0(output_dir, '/SPI_Gender_SDG_data.dta'))
+#haven::write_dta((combined_df_sv %>% filter(!is.na(IQ.SPI.OVRL))), path=paste0(output_dir, '/SPI_Gender_SDG_data.dta'))
+#haven::write_dta(combined_df_sv, path=paste0(output_dir, '/SPI_Gender_SDG_data.dta'))
+
 
 
 #get number of SDG indicators considered
@@ -2101,8 +2217,8 @@ gender_overperformers_plot <- gender_overperformers_plot %>%
   ) +
   xlab("") +
   ylab("Number of Additional SDG Indicators Compared to Expected") +
-  ggtitle("Gender SDG Availability",
-          subtitle = 'Number of Additional SDG Indicators than Expected Based on SPI Score')
+  ggtitle("Gender SDG Availability")
+          #subtitle = 'Number of Additional SDG Indicators than Expected Based on SPI Score')
 
 
 
@@ -2167,8 +2283,8 @@ gender_overperformers_plot <- gender_overperformers_plot %>%
   ) +
   xlab("") +
   ylab("Percentage Difference from Expected Based on SPI Overall Score") +
-  ggtitle("Gender SDG Availability",
-          subtitle = 'Difference from Expected shown as Percent of Predicted Value')
+  ggtitle("Gender SDG Availability")
+          #subtitle = 'Difference from Expected shown as Percent of Predicted Value')
 
 
 
@@ -2193,6 +2309,8 @@ avail_wbstats_reg_df <- avail_wbstats_df %>%
 models <- list(
   
 'All Explanatory Variables Included' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region  , data=avail_wbstats_reg_df, se='hetero'),
+'All Explanatory Variables Included + GII' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + gii + region  , data=avail_wbstats_reg_df, se='hetero'),
+'All Explanatory Variables Included + SIGI' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + sigi + region  , data=avail_wbstats_reg_df, se='hetero'),
 'SPI Only' = feols(availability ~  IQ.SPI.OVRL , data=avail_wbstats_reg_df, se='hetero'),
 'SPI Excluded' = feols(availability ~   log(NY.GDP.PCAP.PP.CD)  + log(SP.POP.TOTL) + SG.LAW.INDX + region , data=avail_wbstats_reg_df, se='hetero'),
 'Region Only' = feols(availability ~   region  , data=avail_wbstats_reg_df, se='hetero'),
@@ -2209,7 +2327,51 @@ modelsummary(models,
                              "log(NY.GDP.PCAP.PP.CD^2)" = "Log GDP per capita Squared",
                              "region"="Region",
                              "log(SP.POP.TOTL)"="Log Population",
-                             "SG.LAW.INDX" = "Women Business and the Law Index Score (scale 1-100)"
+                             "SG.LAW.INDX" = "Women Business and the Law Index Score (scale 1-100)",
+                             "gii"="Gender Inequality Index",
+                             "sigi"="Social Institutions and Gender Index"
+                             ),
+             notes="",
+             gof_map = gm,
+             escape = FALSE,
+             fmt = 2
+             )
+
+```
+Regressions with less than 1.5 million in population as a control.
+
+```{r modelalt}
+
+
+avail_wbstats_reg_df <- avail_wbstats_df %>%
+  filter(!(is.na(IQ.SPI.OVRL) | is.na(NY.GDP.PCAP.PP.CD) | is.na(SP.POP.TOTL) | is.na(SG.LAW.INDX))) %>%
+  mutate(pop_under1.5=as.numeric(SP.POP.TOTL<=1500000))
+
+models <- list(
+  
+'All Explanatory Variables Included' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + pop_under1.5 + SG.LAW.INDX + region  , data=avail_wbstats_reg_df, se='hetero'),
+'All Explanatory Variables Included + GII' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + pop_under1.5 + SG.LAW.INDX + gii + region  , data=avail_wbstats_reg_df, se='hetero'),
+'All Explanatory Variables Included + SIGI' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + pop_under1.5 + SG.LAW.INDX + sigi + region  , data=avail_wbstats_reg_df, se='hetero'),
+'SPI Only' = feols(availability ~  IQ.SPI.OVRL , data=avail_wbstats_reg_df, se='hetero'),
+'SPI Excluded' = feols(availability ~   log(NY.GDP.PCAP.PP.CD)  + pop_under1.5 + SG.LAW.INDX + region , data=avail_wbstats_reg_df, se='hetero'),
+'Region Only' = feols(availability ~   region  , data=avail_wbstats_reg_df, se='hetero'),
+'Region Excluded' = feols(availability ~  IQ.SPI.OVRL + log(NY.GDP.PCAP.PP.CD)  + pop_under1.5 + SG.LAW.INDX  , data=avail_wbstats_reg_df, se='hetero')
+
+)
+
+
+
+modelsummary(models,
+             estimate= "{estimate}{stars}",
+             coef_rename = c("IQ.SPI.OVRL" = "SPI Overall Score",
+                             "log(NY.GDP.PCAP.PP.CD)" = "Log GDP per capita",
+                             "log(NY.GDP.PCAP.PP.CD^2)" = "Log GDP per capita Squared",
+                             "region"="Region",
+                             "log(SP.POP.TOTL)"="Log Population",
+                             "pop_under1.5" = "Population under 1.5 million",
+                             "SG.LAW.INDX" = "Women Business and the Law Index Score (scale 1-100)",
+                             "gii"="Gender Inequality Index",
+                             "sigi"="Social Institutions and Gender Index"
                              ),
              notes="",
              gof_map = gm,
@@ -2219,12 +2381,123 @@ modelsummary(models,
 
 ```
 
+Maturity Table
+
+
+```{r}
+#get overall gender data availability measure
+avail_full_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>%
+  mutate(availability=100*ind_quality) %>% #convert ind_quality measure which is 0-1 to percentage available by multiplying by 100
+  filter(date==2019 & !is.na(goal) ) %>% #keep just most recent year
+  select(iso3c, date, country, region, income_level, goal, availability) %>%
+  pivot_wider(
+     names_from='goal',
+     values_from='availability'
+  ) 
+
+#read in SPI data from WDI
+SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL','IQ.SPI.PIL3', 'NY.GDP.PCAP.PP.CD', 'SP.POP.TOTL', 'SG.LAW.INDX',
+                                       'HD.HCI.OVRL','GE.EST'),
+                           start_date = 2019) 
+
+
+#read in data on  GII and SIGI measures 
+gii_sigi_df <- readxl::read_excel(paste0(raw_dir, "/misc/GII_SIGI.xlsx")) %>%
+  rename(country=Country,
+         gii=`GII 2021`,
+         sigi=`SIGI 2019`)
+
+
+#combine data
+avail_full_wbstats_df <- avail_full_SPI_df %>%
+  left_join(gii_sigi_df) %>%
+  left_join(SPI_df) 
+
+#get number of tier 1 and tier 2 indicators
+ind_counts <- table1dat %>%
+  group_by(Tier) %>%
+  summarise(n=n())
+
+combined_full_df <- avail_full_wbstats_df %>%
+  filter(!is.na(IQ.SPI.OVRL)) %>%
+  mutate(`Combined Indicators (n=50)`=Combined*50/100,
+         `Tier 1 Indicators (n=18)`=`Tier 1`*18/100,
+         `Tier 2 Indicators (n=31)`=`Tier 2`*31/100)
+
+
+
+```
+
+```{r}
+data <- 'combined_full_df'
+indicators <- c("Combined Indicators (n=50)", "Tier 1 Indicators (n=18)", "Tier 2 Indicators (n=31)")
+reference_year <- 2019
+
+      df_overall <- get(data) %>%
+      filter(date==as.numeric(reference_year)) %>% 
+      rename(SPI.INDEX=IQ.SPI.OVRL) %>%
+      select(country, iso3c, date, income_level, region, all_of(indicators), SPI.INDEX) 
+    
+    
+    spi_groups_quantiles <- quantile(df_overall$SPI.INDEX, probs=c(1,2,3,4)/5,na.rm=T)
+    
+    df_overall <- df_overall %>%
+      mutate(spi_groups=case_when(
+        between(SPI.INDEX, spi_groups_quantiles[4],100) ~ "Top Quintile",
+        between(SPI.INDEX, spi_groups_quantiles[3],spi_groups_quantiles[4]) ~ "4th Quintile",
+        between(SPI.INDEX, spi_groups_quantiles[2],spi_groups_quantiles[3]) ~ "3rd Quintile",
+        between(SPI.INDEX, spi_groups_quantiles[1],spi_groups_quantiles[2]) ~ "2nd Quintile",
+        between(SPI.INDEX, 0,spi_groups_quantiles[1]) ~ "Bottom 20%"
+      )) %>%
+      mutate(spi_groups=factor(spi_groups, 
+                               levels=c("Top Quintile","4th Quintile","3rd Quintile","2nd Quintile","Bottom 20%" )))  
+    
+    #produce by income
+    sumstats<- df_overall %>%
+      group_by(spi_groups) %>%
+      filter(!is.na(spi_groups)) %>%
+      select(spi_groups, all_of(indicators)) %>%
+      summarise_all(~round(mean(., na.rm=T),0)) 
+    
+    #produce global number
+    sumstats_gl<- df_overall %>%
+      mutate(spi_groups='Global') %>%
+      group_by(spi_groups) %>%
+      select(spi_groups, all_of(indicators)) %>%
+      summarise_all(~round(mean(., na.rm=T),0)) 
+    
+    
+    #transpose data
+    sumstats_df_long <-sumstats 
+    
+    sumstats_df <- as.data.frame(t(sumstats_df_long %>% select(-spi_groups)))
+    colnames(sumstats_df) = sumstats_df_long$spi_groups 
+    
+    
+    sumstats_df <- sumstats_df %>%
+      rownames_to_column() %>%
+      rename(series=rowname)
+    
+    
+
+    
+    #add variable label
+    sumstats_df <- sumstats_df %>%
+      rename(SDGs=series) %>%
+      select(SDGs, c("Bottom 20%","2nd Quintile","3rd Quintile","4th Quintile","Top Quintile" ))
+
+
+flextable(sumstats_df) %>%
+  add_header_lines('Average Number of SDGs by SPI Quintile')
+
+```
+
 
 # Data Sources for Gender Indicators
 
 In what will follow, the most common data sources for each of the SDG indicators in Table 1 will be discussed.  This can provide some guidance on the types of data sources that are typically used to report on these indicators, and reveal gaps that may exists for specific countries.  Data sources are based on the metadata in the [UN Global SDG Indicator Database](https://unstats.un.org/sdgs/indicators/database/).^[Data was pulled from the UN Global SDG Indicators database on July 19, 2021.]
 
-```{r sources, eval=FALSE, cache=TRUE, include=FALSE}
+```{r sources, eval=FALSE, cache=cacher, include=FALSE}
 
 #sdg raw data read function
 read_sdg_data  <- function(series) {
@@ -2285,6 +2558,8 @@ sources_categorized_df <- source_df_long %>%
             TRUE ~ "Other")
     )
 
+
+
 sources_explained <- sources_categorized_df %>%
   group_by(goal, data_type, code, code1, description, description1) %>%
   summarise(n=sum(n),
@@ -2320,6 +2595,203 @@ sources_explained %>%
 
 
 ```
+
+Show a table of share of indicators using MICS or DHS.
+
+```{r}
+mics_dhs_share <- sources_categorized_df %>%
+  left_join(list_df, by=c("goal", "target", "code", "code1", 'description', 'description1')) %>%
+  group_by(ccode) %>%
+  filter(!is.na(ccode)) %>%
+  mutate(total=sum(n),
+         number=n) %>%
+  ungroup() %>%
+  filter(data_type=='MICS' | data_type=='Demographic and Health Survey') %>%
+  group_by(ccode) %>%
+  summarise(total_mics_dhs=sum(number)/mean(total)) %>%
+  filter(total_mics_dhs>=0.5)
+
+mics_dhs_list <- mics_dhs_share$ccode
+
+```
+
+```{r}
+#do same figure but add regional diaggregations
+
+region <- unique(country_metadata$region)
+income_groups <- unique(country_metadata$income_level)
+
+table_1_fun <- function(group) {
+  
+   
+  if (group %in% region) {
+    countries <- country_metadata %>% filter(region==group) %>% pluck('iso3c')
+  } else if (group %in% income_groups) {
+        countries <- country_metadata %>% filter(income_level==group) %>% pluck('iso3c')
+  } else if (group=="Global") {
+    countries <- country_metadata  %>% pluck('iso3c')
+  }
+  
+  
+  lower_year <- 2015
+  upper_year <- 2020
+  
+  #aggregate the gender data to country level
+     sdg_gender_exists_df <- un_sdg_filled_df %>%  
+      filter(between(date, lower_year, upper_year)) %>%
+      filter(iso3c %in% countries) %>%
+      group_by(iso3c,ccode) %>%
+      summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
+      filter(!is.na(ccode)) %>%
+      pivot_wider(
+        names_from='ccode',
+        names_prefix="ccode.",
+        values_from='ind_quality'
+      ) %>%
+    ungroup() %>%
+    mutate(across(contains("."),~if_else(is.na(.),0,.))) %>%
+    summarise(across(contains("."),mean, na.rm=T)) %>%
+    mutate(sex="Any")
+    
+    sdg_gender_disagg_df <- un_sdg_gender_filled_df %>%
+      filter(between(date, lower_year, upper_year)) %>%
+      filter(iso3c %in% countries) %>%
+      group_by(iso3c, ccode, sex) %>%
+      summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
+      filter(!is.na(ccode)) %>%
+      pivot_wider(
+        names_from='ccode',
+        names_prefix="ccode.",
+        values_from='ind_quality'
+      ) %>%
+    ungroup() %>%
+    filter(sex %in% c("FEMALE",  "MALE","BOTHSEX" )) %>%
+    mutate(across(contains("."),~if_else(is.na(.),0,.)))  %>%
+     group_by( sex) %>%
+     summarise(across(contains("."),mean, na.rm=T)) 
+   
+  sdg_gender_disagg_df <- sdg_gender_disagg_df %>%
+    bind_rows(sdg_gender_exists_df) 
+    
+    disagg_tab_df <- sdg_gender_disagg_df %>%
+    pivot_longer(
+        cols=contains("."),
+        names_to='ccode',
+        values_to='Availability'
+      ) %>%
+    mutate(ccode=str_remove(ccode,'ccode.'),
+           ccode=as.numeric(ccode)) %>%
+    right_join(metainfo ) %>%
+    filter(sex %in% c("FEMALE", "Any")) %>%
+    mutate(sex=if_else(sex=="FEMALE","Sex Disaggregation Available",'Any Data Available'),
+           Availability=100*round(if_else(is.na(Availability),0,Availability),3)) %>%
+    arrange(as.numeric(goal), rev(code)) %>%
+    distinct() %>%
+    pivot_wider(
+      names_from=sex,
+      values_from=Availability
+    ) %>%
+    mutate(
+      Goal=goal,
+      Indicator=code,
+      Tier=tier,
+      Description=description
+    )
+  
+  table1_df <- disagg_tab_df %>%
+    mutate(`Sex Disaggregation Available`=if_else(Gender_Breakdown==0,as.numeric(NA),`Sex Disaggregation Available`)) %>% #mark as missing observations that are not supposed to have gender breakdown (i.e. maternal mortaility)  
+    select(ccode, Goal, Indicator, Tier, Description, `Sex Disaggregation Available`, `Any Data Available`) %>%
+    merge(table1dat, by = c("ccode","Goal", "Indicator", "Tier", "Description"), all = T) %>%
+    mutate(`Sex Disaggregation Available`=if_else(is.na(`Any Data Available`) & Gender_Breakdown==1,0,`Sex Disaggregation Available`),
+           `Any Data Available`=if_else(is.na(`Any Data Available`),0,`Any Data Available`)
+           ) %>% # if no data is available for overall availability, then set to zero as it means no data is available in SDG database.
+    select(Goal, Indicator, Tier, Description,`Sub-Indicators`, everything()) %>%
+    select(- Gender_Breakdown) %>%
+    arrange(as.numeric(Goal), Indicator) %>%
+    rename_with(
+      ~paste0(.x, " - ", group),
+      .cols=c('Sex Disaggregation Available','Any Data Available')
+      )
+           
+  
+}
+
+tab_eap <- table_1_fun("East Asia & Pacific")
+tab_eca <- table_1_fun("Europe & Central Asia")
+tab_lac <- table_1_fun("Latin America & Caribbean")
+tab_mna <- table_1_fun("Middle East & North Africa")
+tab_nac <- table_1_fun("North America" )
+tab_sar <- table_1_fun("South Asia")
+tab_ssa <- table_1_fun("Sub-Saharan Africa")
+
+tab_lic <- table_1_fun("Low income")
+tab_lmic <- table_1_fun("Lower middle income")
+tab_umic <- table_1_fun("Upper middle income")
+tab_hic <- table_1_fun("High income" )
+
+tab_global <- table_1_fun("Global" )
+
+tab_full <- tab_eap %>%
+  left_join(tab_eca) %>%
+  left_join(tab_lac) %>%
+  left_join(tab_mna) %>%
+  left_join(tab_nac) %>%
+  left_join(tab_sar) %>%
+  left_join(tab_ssa) %>%
+  left_join(tab_lic) %>%
+  left_join(tab_lmic) %>%
+  left_join(tab_umic) %>%
+  left_join(tab_hic) %>%
+  left_join(tab_global) 
+
+
+```
+
+```{r}
+#now flag indicators where the gap between the high income and global availability is greatest
+tab_col <- tab_full %>%
+  mutate(data_gap=case_when(
+    !is.na(`Sex Disaggregation Available - Global`) ~ `Sex Disaggregation Available - High income`-`Sex Disaggregation Available - Global`,
+    is.na(`Sex Disaggregation Available - Global`) ~ `Any Data Available - High income`-`Any Data Available - Global`)
+    ) 
+
+quantile <- quantile(tab_col$data_gap, probs=c(seq(0,1,.2)))
+
+tab_col <- tab_col %>%
+  mutate(
+    data_gap_col=case_when(
+      between(data_gap, quantile[1],quantile[2]) ~ "#780000",
+      between(data_gap, quantile[2],quantile[3]-0.01) ~ "#c1121f",
+      between(data_gap, quantile[3],quantile[4]) ~ "#fdf0d5",
+      between(data_gap, quantile[4],quantile[5]) ~ "#669bbc",
+      between(data_gap, quantile[5],quantile[6]) ~ "#003049"
+    ),
+    data_gap_font=case_when(
+      between(data_gap, quantile[1],quantile[2]) ~ "#ced4da",
+      between(data_gap, quantile[2],quantile[3]-0.01) ~ "#252422",
+      between(data_gap, quantile[3],quantile[4]) ~ "#252422",
+      between(data_gap, quantile[4],quantile[5]) ~ "#252422",
+      between(data_gap, quantile[5],quantile[6]) ~ "#ced4da"
+    )
+  )
+
+
+tab_col_list <- tab_col$data_gap_col
+tab_font_list <- tab_col$data_gap_font
+
+tab_full %>%
+  left_join(mics_dhs_share) %>%
+  mutate(`MICS/DHS majority source`=if_else(total_mics_dhs>=0.5,"TRUE","FALSE","FALSE")) %>%
+  select(Goal, Indicator, Tier, Description, `Sub-Indicators`, `Sex Disaggregation Available - High income`,`Sex Disaggregation Available - Global`,`Any Data Available - High income`,`Any Data Available - Global`,`MICS/DHS majority source`) %>%
+  flextable() %>%
+  bg(
+    bg = tab_col_list) %>%
+  color(
+    color = tab_font_list) %>%
+  set_table_properties(layout = "autofit")
+
+```
+
 Now show a table for  the top 10 for each indicator.  In some cases, the sources are unique for each country.  In that case, a set of 5 are chosen.
 
 ```{r souceplot, eval=FALSE, fig.height=8, include=FALSE}
