@@ -9,9 +9,10 @@ output:
     fig_height: 6
 abstract: ''
 bibliography: ./bibliography.bib
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
-
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -104,25 +105,70 @@ gm <- tibble::tribble(
   "r.squared", "R Sq.", 2)
 ```
 
-
 # Introduction
 
-The [2030 Agenda for Sustainable Development](https://sdgs.un.org/2030agenda) lays out an ambitious agenda for achieving gender equality and empowering all women and girls. This agenda, adopted by nearly all countries, is paired with a set of goals and targets, with concrete indicators, for meeting that agenda.
+The [2030 Agenda for Sustainable
+Development](https://sdgs.un.org/2030agenda) lays out an ambitious
+agenda for achieving gender equality and empowering all women and girls.
+This agenda, adopted by nearly all countries, is paired with a set of
+goals and targets, with concrete indicators, for meeting that agenda.
 
-However, countries are falling short on reporting on these indicators.  This article will diagnose the reasons for missing gender data: (1) lack of core/foundational surveys/census or relevant admin data source (2) lack of specialized surveys (3) flawed surveys/MIS (questionnaire design or bad forms in admin data) (4) lack of availability of data/stats from surveys/census/admin sources – so data exists but not easy to get the data/stats [poorly disseminated].
+However, countries are falling short on reporting on these indicators.
+This article will diagnose the reasons for missing gender data: (1) lack
+of core/foundational surveys/census or relevant admin data source (2)
+lack of specialized surveys (3) flawed surveys/MIS (questionnaire design
+or bad forms in admin data) (4) lack of availability of data/stats from
+surveys/census/admin sources -- so data exists but not easy to get the
+data/stats [poorly disseminated].
 
-To begin, a discussion of the scope of missing data is given.  Data is largely sourced from the UGepecific breakdown by sex.  
+To begin, a discussion of the scope of missing data is given. Data is
+largely sourced from the UGepecific breakdown by sex.
 
-Next, for each country, the share of these indicators that are available over a five year period from 2015 to 2020 are assessed.  Globally, countries have a value for less than 40% of these indicators on average during this time period.  For tier 1 indicators, the average is slightly higher with countries having a recent value for around 44% of the indicators.  For tier 2 indicators, the average country has a recent value for only 27% of the indicators.  For Goal 5 specifically, the average country has a recent value for around 34% of the indicators.
+Next, for each country, the share of these indicators that are available
+over a five year period from 2015 to 2020 are assessed. Globally,
+countries have a value for less than 40% of these indicators on average
+during this time period. For tier 1 indicators, the average is slightly
+higher with countries having a recent value for around 44% of the
+indicators. For tier 2 indicators, the average country has a recent
+value for only 27% of the indicators. For Goal 5 specifically, the
+average country has a recent value for around 34% of the indicators.
 
-Additionally, for indicators that require a breakdown by sex, in several cases there are large gaps between the percentage of countries with a recent value for females and whether a value for any sex or both sexes combined exists.  For instance, while SDG indicator 1.2.1, on the proportion of population living below the national poverty line, specifies that a breakdown by sex is available.  This information is not currently available in the UN global SDG database.  Additionally, for SDG indicator 1.3.1, on Proportion of population covered by social protection floors/systems, by sex, 79.4% of countries have a recent value for any/both sexes, but only 7.8% of countries have a recent value for females.  To cite another example, for SDG indicator 4.1.1, Proportion of children and young people (a) in grades 2/3; (b) at the end of primary; and (c) at the end of lower secondary achieving at least a minimum proficiency level in (i) reading and (ii) mathematics, by sex, 62.4% of countries have a value for any/both sexes, but only 52.3% of countries have a value for females.
+Additionally, for indicators that require a breakdown by sex, in several
+cases there are large gaps between the percentage of countries with a
+recent value for females and whether a value for any sex or both sexes
+combined exists. For instance, while SDG indicator 1.2.1, on the
+proportion of population living below the national poverty line,
+specifies that a breakdown by sex is available. This information is not
+currently available in the UN global SDG database. Additionally, for SDG
+indicator 1.3.1, on Proportion of population covered by social
+protection floors/systems, by sex, 79.4% of countries have a recent
+value for any/both sexes, but only 7.8% of countries have a recent value
+for females. To cite another example, for SDG indicator 4.1.1,
+Proportion of children and young people (a) in grades 2/3; (b) at the
+end of primary; and (c) at the end of lower secondary achieving at least
+a minimum proficiency level in (i) reading and (ii) mathematics, by sex,
+62.4% of countries have a value for any/both sexes, but only 52.3% of
+countries have a value for females.
 
-This paper then offers a discussion for why such gender gaps exist.  First, the relationship between a country's Statistical Performance Indicator (SPI) overall score and the country's performance at producing gender statistics is examined. Next, the specific set of data sources used to produce gender SDG indicators is examined.  
-
+This paper then offers a discussion for why such gender gaps exist.
+First, the relationship between a country's Statistical Performance
+Indicator (SPI) overall score and the country's performance at producing
+gender statistics is examined. Next, the specific set of data sources
+used to produce gender SDG indicators is examined.
 
 ## SDG Indicators related to Gender
 
 ```{r sdggendf}
+
+ #add in population
+pop_df <- wbstats::wb_data(country="all",
+             indicator='SP.POP.TOTL',
+             start_date=2004,
+             end_date=2021) %>%
+  mutate(date=as.numeric(date)) %>%
+  mutate(population=SP.POP.TOTL) %>%
+  select(iso3c, date, population) 
+
 #read in table about gender sdgs
 sdg_tab <- read_csv(file = paste0(raw_dir, '/misc/Gender_SDGs.csv')) 
 
@@ -134,7 +180,7 @@ sdg_tab_merge <- sdg_tab %>%
             Gender_Breakdown=Gender_Breakdown)
 
 #get a list of all SDG indicators
-indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
+indicators_url <- paste0(raw_dir, '/misc/un_indicators.json')
 
 indicators_list <- sdg_tab %>%
   filter(!is.na(Code))
@@ -172,10 +218,26 @@ gend_df_len <- nrow(list_df)
 
 ```
 
+Below is a list of SDG indicators related to gender. These indicators
+include both the indicators in SDG 5 on gender equity, as well as
+indicators from several other goals that specify that an indicator
+should be available by gender. For instance SDG indicator 8.5.2
+specified that countries should track the unemployment rate, by sex, age
+and persons with disabilities. In what will follow, it will be checked
+whether data is available in each country for these indicators. There
+are `r gend_df_len` indicators that are identified.
 
-Below is a list of SDG indicators related to gender.  These indicators include both the indicators in SDG 5 on gender equity, as well as indicators from several other goals that specify that an indicator should be available by gender.  For instance SDG indicator 8.5.2 specified that countries should track the unemployment rate, by sex, age and persons with disabilities.  In what will follow, it will be checked whether data is available in each country for these indicators. There are `r gend_df_len` indicators that are identified.
-
-So as to judge countries by a set of indicators that are on the most solid foundation and widespread, the table includes only [tier 1 & tier 2 indicators](https://unstats.un.org/sdgs/iaeg-sdgs/tier-classification/). Tier 1 indicators, according to the UN, are indicators that are conceptually clear, have an internationally established methodology and standards available, and data are regularly produced by countries for at least 50% of countries and of the population in every region where relevant.  Tier 2 indicators are conceptually clear and have an internationally established methodology and set of standards, but are not regularly produced by countries.
+So as to judge countries by a set of indicators that are on the most
+solid foundation and widespread, the table includes only [tier 1 & tier
+2
+indicators](https://unstats.un.org/sdgs/iaeg-sdgs/tier-classification/).
+Tier 1 indicators, according to the UN, are indicators that are
+conceptually clear, have an internationally established methodology and
+standards available, and data are regularly produced by countries for at
+least 50% of countries and of the population in every region where
+relevant. Tier 2 indicators are conceptually clear and have an
+internationally established methodology and set of standards, but are
+not regularly produced by countries.
 
 ```{r sdggender}
 
@@ -215,48 +277,108 @@ table1dat <- list_df %>%
 
 ## Coverage Gaps for Gender Indicators
 
-In the following section, a discussion will be given on the current availability of gender data. Particular attention is given to the availability of data for reporting on the Sustainable Development Goals (SDGs), as it represents an agreed upon set of goals for countries to meet and because the vast majority of countries, through the SDG dialogue, have agreed to report on indicators related to these goals. Coverage gaps across regions, income groups, ages, and years are discussed.
+In the following section, a discussion will be given on the current
+availability of gender data. Particular attention is given to the
+availability of data for reporting on the Sustainable Development Goals
+(SDGs), as it represents an agreed upon set of goals for countries to
+meet and because the vast majority of countries, through the SDG
+dialogue, have agreed to report on indicators related to these goals.
+Coverage gaps across regions, income groups, ages, and years are
+discussed.
 
-While nearly all countries have agreed to report on the SDG indicator, and according to the [UN global SDG indicators database](https://unstats.un.org/sdgs/indicators/database/) major gaps exist in what indicators are available.  The UN global SDG indicators database provides access to the data compiled by the UN for the annual [Sustainable Development Goals Report](https://www.un.org/sustainabledevelopment/progress-report/) tracking progress toward fulfilling the SDGs [@un2020].  
+While nearly all countries have agreed to report on the SDG indicator,
+and according to the [UN global SDG indicators
+database](https://unstats.un.org/sdgs/indicators/database/) major gaps
+exist in what indicators are available. The UN global SDG indicators
+database provides access to the data compiled by the UN for the annual
+[Sustainable Development Goals
+Report](https://www.un.org/sustainabledevelopment/progress-report/)
+tracking progress toward fulfilling the SDGs [@un2020].
 
-The methodology for this exercise follows [@dang2020tracking], which summarises the availability of SDG indicators in the UN SDG database.  For each SDG indicator, a country scores "1" if a value can be found in the database for that indicator between 2010 and 2020, and "0" if data is missing for that indicator between 2010 and 2020.  The value for the region and income group in Figure 1 and Figure 2 below is the percentage of countries in that region or income group with a value found in the database.  The percentages are raw percentages across regions or income groups and are not weighted for population.  Only tier 1 indicators are included in this analysis.
+The methodology for this exercise follows [@dang2020tracking], which
+summarises the availability of SDG indicators in the UN SDG database.
+For each SDG indicator, a country scores "1" if a value can be found in
+the database for that indicator between 2010 and 2020, and "0" if data
+is missing for that indicator between 2010 and 2020. The value for the
+region and income group in Figure 1 and Figure 2 below is the percentage
+of countries in that region or income group with a value found in the
+database. The percentages are raw percentages across regions or income
+groups and are not weighted for population. Only tier 1 indicators are
+included in this analysis.
 
 ### Methodology
 
-  1. Download the latest SDG indicator data from UN Stats (https://unstats.un.org/sdgs/indicators/en/#) using their API   
-  
-  2. Transform the data so that for each indicator we can create a score documenting whether a value exists for the country in a year, whether the value is based on country data, country data adjusted, estimated, or modelled data according the UN Stats metadata. **This will only include tier 1 indicators**.    
-  
-  3. Combine the resulting data into a single set of indicators by calculating the average across the gender SDGs.  
+1.  Download the latest SDG indicator data from UN Stats
+    (<https://unstats.un.org/sdgs/indicators/en/#>) using their API
 
-Below is a paraphrased description from the UN stats webpage (https://unstats.un.org/sdgs/indicators/indicators-list/):
+2.  Transform the data so that for each indicator we can create a score
+    documenting whether a value exists for the country in a year,
+    whether the value is based on country data, country data adjusted,
+    estimated, or modelled data according the UN Stats metadata. **This
+    will only include tier 1 indicators**.
 
-The global indicator framework for Sustainable Development Goals was developed by the Inter-Agency and Expert Group on SDG Indicators (IAEG-SDGs) and agreed upon at the 48th session of the United Nations Statistical Commission held in March 2017.
+3.  Combine the resulting data into a single set of indicators by
+    calculating the average across the gender SDGs.
 
-The global indicator framework includes 231 unique indicators. Please note that the total number of indicators listed in the global indicator framework of SDG indicators is 247. However, twelve indicators repeat under two or three different targets.
+Below is a paraphrased description from the UN stats webpage
+(<https://unstats.un.org/sdgs/indicators/indicators-list/>):
 
-For each value of the indicator, the responsible international agency has been requested to indicate whether the national data were adjusted, estimated, modelled or are the result of global monitoring. The “nature” of the data in the SDG database is determined as follows:
+The global indicator framework for Sustainable Development Goals was
+developed by the Inter-Agency and Expert Group on SDG Indicators
+(IAEG-SDGs) and agreed upon at the 48th session of the United Nations
+Statistical Commission held in March 2017.
 
+The global indicator framework includes 231 unique indicators. Please
+note that the total number of indicators listed in the global indicator
+framework of SDG indicators is 247. However, twelve indicators repeat
+under two or three different targets.
 
-  * Country data (C): Produced and disseminated by the country (including data adjusted by the country to meet international standards);    
-  
-  * Country data adjusted (CA): Produced and provided by the country, but adjusted by the international agency for international comparability to comply with internationally agreed standards, definitions and classifications;    
-  
-  * Estimated (E): Estimated based on national data, such as surveys or administrative records, or other sources but on the same variable being estimated, produced by the international agency when country data for some year(s) is not available, when multiple sources exist, or when there are data quality issues;    
-  
-  * Modelled (M): Modelled by the agency on the basis of other covariates when there is a complete lack of data on the variable being estimated;    
-  
-  * Global monitoring data (G): Produced on a regular basis by the designated agency for global monitoring, based on country data. There is no corresponding figure at the country level.
+For each value of the indicator, the responsible international agency
+has been requested to indicate whether the national data were adjusted,
+estimated, modelled or are the result of global monitoring. The "nature"
+of the data in the SDG database is determined as follows:
 
+-   Country data (C): Produced and disseminated by the country
+    (including data adjusted by the country to meet international
+    standards);
 
-For each indicator, we will produce a value for each country with the following coding scheme:    
+-   Country data adjusted (CA): Produced and provided by the country,
+    but adjusted by the international agency for international
+    comparability to comply with internationally agreed standards,
+    definitions and classifications;
 
-  * **1 Point**: Indicator exists and the value is based on the **country**, **country data adjusted**, or **estimated or Global Monitoring** data    
-  * **0 Points**: Indicator **based on modeled data or does not exists**
-  
-We give countries no credit for modeled data, because the country did not produce indicators in a form that was directly usable for reporting on an SDG indicator.
-  
-When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
+-   Estimated (E): Estimated based on national data, such as surveys or
+    administrative records, or other sources but on the same variable
+    being estimated, produced by the international agency when country
+    data for some year(s) is not available, when multiple sources exist,
+    or when there are data quality issues;
+
+-   Modelled (M): Modelled by the agency on the basis of other
+    covariates when there is a complete lack of data on the variable
+    being estimated;
+
+-   Global monitoring data (G): Produced on a regular basis by the
+    designated agency for global monitoring, based on country data.
+    There is no corresponding figure at the country level.
+
+For each indicator, we will produce a value for each country with the
+following coding scheme:
+
+-   **1 Point**: Indicator exists and the value is based on the
+    **country**, **country data adjusted**, or **estimated or Global
+    Monitoring** data\
+-   **0 Points**: Indicator **based on modeled data or does not exists**
+
+We give countries no credit for modeled data, because the country did
+not produce indicators in a form that was directly usable for reporting
+on an SDG indicator.
+
+When we average over all indicators in a goal to get a score, we compute
+a 5 year moving average to avoid year to year variability in reporting
+for SDGs. The overall score for an SDG is then the 5 year average of the
+percentage of indicator values based on **country**, **country data
+adjusted**, or **estimated or Global Monitoring** data that were
+available for the SDG.
 
 ```{r save, echo=FALSE, message=FALSE, warning=FALSE, show_col_types = FALSE, cache=cacher}
 
@@ -352,9 +474,6 @@ un_sdg_df<- un_sdg_df %>%
 write_excel_csv(un_sdg_df, paste(output_dir, '/un_sdg_df.csv',sep=""))
 
 ```
-
-
-
 
 ```{r readgender, echo=FALSE, show_col_types=FALSE, cache=cacher}
 
@@ -479,7 +598,6 @@ un_sdg_combined_df <- un_sdg_combined_df %>%
 write_excel_csv(un_sdg_combined_df, paste(output_dir, '/un_sdg_combined_df.csv',sep=""))
 
 ```
-
 
 ```{r saver, include=rerun, cache=cacher}
 
@@ -730,23 +848,58 @@ write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_1yr.csv', s
 
 ```
 
-
-
-
 ```{r availabilitydat}
 
 
 avail_plt_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>%
   mutate(availability=100*ind_quality) %>% #convert ind_quality measure which is 0-1 to percentage available by multiplying by 100
-  filter(date==2020 & goal=="Combined") #keep just most recent year
+  filter(date==2020 & goal=="Combined") %>% #keep just most recent year
+  left_join(pop_df) %>%
+  mutate(income_alt_groups=case_when(
+    income_level=="High income" & population<=500000 ~ "Hgh Income & Pop <= 500K",
+    income_level=="High income" & population>500000 ~ "Hgh Income & Pop >= 500K",
+    TRUE ~ income_level
+  ),
+  pop_groups=case_when(
+    population<=500000 ~ "Pop <= 500K",
+    population>500000 ~ "Pop > 500K",
+  ) )
 
 
-
-
+avail_plt_df %>%
+  write_excel_csv(paste0(output_dir, '/SPI_Gender_availability_inc_reg_pop.csv'))
 
 ```
 
-Figure 1. Percentage of SDG Gender Indicators available between `r 2020-window` and 2020.  Each point corresponds to country
+```{r}
+pop_tab_inc <- avail_plt_df %>%
+  group_by(income_level, pop_groups) %>%
+  tally() %>%
+  pivot_wider(names_from=pop_groups, values_from=n, values_fill=0) %>%
+  ungroup() %>%
+  mutate(Total=`Pop <= 500K` + `Pop > 500K`) %>%
+  rename(group=income_level)
+
+pop_tab_reg <- avail_plt_df %>%
+  group_by(region, pop_groups) %>%
+  tally() %>%
+  pivot_wider(names_from=pop_groups, values_from=n, values_fill=0) %>%
+  ungroup() %>%
+  mutate(Total=`Pop <= 500K` + `Pop > 500K`) %>%
+  rename(group=region)
+
+pop_tab_inc %>%
+  bind_rows(pop_tab_reg) %>%
+  flextable() %>%
+  theme_zebra() %>%
+  hline(i=5) 
+
+```
+
+
+Figure 1. Percentage of SDG Gender Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country
+
 ```{r avail_chart1}
 
 #calculate global average
@@ -776,8 +929,8 @@ arrows <-
   tibble(
     x1 = c(5.2, 6.62),
     x2 = c(4.6, 7),
-    y1 = c(world_avg + 20, 20),
-    y2 = c(world_avg + 2, 30)
+    y1 = c(world_avg + 20, 15),
+    y2 = c(world_avg + 2, 23)
   )
 
 
@@ -794,12 +947,12 @@ avail_plt_df %>%
     size = 0.8
   ) +
   #geom_boxplot(aes(color=region), outlier.alpha = 0) +
-  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  geom_jitter(aes(size = population), alpha = 0.25, width = 0.2) +
   #geom_point(size = 3, alpha = 0.15) +
   stat_summary(fun = mean, geom = "point", size = 5, color='black') +
   #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
   geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
-  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
   theme_bw() +
   coord_flip() +
   ylab('SDG Gender Indicator Availability') +
@@ -820,8 +973,8 @@ avail_plt_df %>%
     label = glue::glue("Average across all countries:\n{round(world_avg, 1)}%")
   ) +
   annotate(
-    "text", x = 6.5, y = 20, family = "Poppins", size = 4, color = "gray20",
-    label = "Regional averages"
+    "text", x = 6.5, y = 7, family = "Poppins", size = 4, color = "gray20",
+    label = str_wrap("Regional average",15)
   ) +
   geom_curve( #add curves for annotatino
     data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
@@ -833,9 +986,10 @@ avail_plt_df %>%
 
 ```
 
+Figure 1. Percentage of SDG Gender Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country By income
+group
 
-
-Figure 1. Percentage of SDG Gender Indicators available between `r 2020-window` and 2020.  Each point corresponds to country By income group
 ```{r avail_chart11}
 
 #calculate regional average
@@ -856,7 +1010,7 @@ arrows <-
     x1 = c(3.2, 1.5),
     x2 = c(2.5, 1.1),
     y1 = c(world_avg + 20, 20),
-    y2 = c(world_avg + 2, 35)
+    y2 = c(world_avg + 2, 24)
   )
 
 avail_plt_df %>%
@@ -873,12 +1027,12 @@ avail_plt_df %>%
     size = 0.8
   ) +
   #geom_boxplot(aes(color=region), outlier.alpha = 0) +
-  geom_jitter(size = 2, alpha = 0.25, width = 0.2) +
+  geom_jitter(aes(size = population), alpha = 0.25, width = 0.2) +
   #geom_point(size = 3, alpha = 0.15) +
   stat_summary(fun = mean, geom = "point", size = 5, color='black') +
   #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
   geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
-  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%."),120)) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
   theme_bw() +
   coord_flip() +
     expand_limits(y=c(0,100)) +
@@ -900,8 +1054,85 @@ avail_plt_df %>%
     label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
   ) +
   annotate(
-    "text", x = 1.4, y = 20, family = "Poppins", size = 4, color = "gray20",
-    label = "income level averages"
+    "text", x = 1.4, y = 10, family = "Poppins", size = 4, color = "gray20",
+    label = str_wrap("income level average",15)
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+```
+
+Figure 1. Percentage of SDG Gender Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country By income
+group
+
+```{r avail_chart11b}
+
+#calculate regional average
+inc_avg <-
+  avail_plt_df %>%
+  mutate(income_alt_groups = ifelse(iso3c == "VEN", "Upper middle income", income_alt_groups)) %>%
+  filter(!is.na(income_alt_groups) & income_alt_groups != "Not classified") %>%
+  group_by(income_alt_groups) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg)
+
+avail_plt_df <- avail_plt_df %>%
+    mutate(income_alt_groups=factor(income_alt_groups,levels=c('Hgh Income & Pop <= 500K', 'Hgh Income & Pop >= 500K', 'Upper middle income', 'Lower middle income', 'Low income'))) 
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.1, 5.5),
+    x2 = c(2.5, 5.1),
+    y1 = c(world_avg + 20, 20),
+    y2 = c(world_avg + 2, 33)
+  )
+
+avail_plt_df %>%
+  filter(!is.na(income_alt_groups)) %>%
+  mutate(income_alt_groups=factor(income_alt_groups,levels=c('Hgh Income & Pop <= 500K', 'Hgh Income & Pop >= 500K', 'Upper middle income', 'Lower middle income', 'Low income')))  %>%
+  arrange(income_alt_groups) %>%
+  ggplot(aes(y=availability, x=income_alt_groups,
+             color=income_alt_groups)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_alt_groups, xend = income_alt_groups,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(aes(size=population), alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
+  theme_bw() +
+  coord_flip() +
+    expand_limits(y=c(0,100)) +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_alt_groups),
+     breaks=levels(avail_plt_df$income_alt_groups)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.35, y = 60, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 5.1, y = 20, family = "Poppins", size = 4, color = "gray20",
+    label = str_wrap("Income level average",15)
   ) +
   geom_curve( #add curves for annotatino
     data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
@@ -1017,8 +1248,6 @@ global %>%
 
 ```
 
-
-
 ```{r availabilitydat1}
 
 
@@ -1027,9 +1256,12 @@ avail_plt_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>
   filter(date==2020 & goal=="Tier 1") #keep just most recent year
 ```
 
-Figure 2 and 3 below break up the availability of gender related indicators into Tier 1 and Tier 2 indicators. 
+Figure 2 and 3 below break up the availability of gender related
+indicators into Tier 1 and Tier 2 indicators.
 
-Figure 2. Percentage of SDG Gender Tier 1 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country
+Figure 2. Percentage of SDG Gender Tier 1 Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country
+
 ```{r avail_chart21}
 
 #calculate global average
@@ -1113,8 +1345,10 @@ avail_plt_df %>%
 
 ```
 
+Figure 2. Percentage of SDG Gender Tier 1 Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country by income
+group
 
-Figure 2. Percentage of SDG Gender Tier 1 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country by income group
 ```{r avail_chart22}
 
 #calculate regional average
@@ -1198,9 +1432,12 @@ avail_plt_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %>
   filter(date==2020 & goal=="Tier 2") #keep just most recent year
 ```
 
-As shown in Figure 3, countries significantly lag in the production of Tier 2 gender indicators.
+As shown in Figure 3, countries significantly lag in the production of
+Tier 2 gender indicators.
 
-Figure 3. Percentage of SDG Gender Tier 2 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country
+Figure 3. Percentage of SDG Gender Tier 2 Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country
+
 ```{r avail_chart2}
 
 #calculate global average
@@ -1287,8 +1524,10 @@ avail_plt_df %>%
 
 ```
 
+Figure 3. Percentage of SDG Gender Tier 2 Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country by income
+group
 
-Figure 3. Percentage of SDG Gender Tier 2 Indicators available between `r 2020-window` and 2020.  Each point corresponds to country by income group
 ```{r avail_chart3}
 
 #calculate regional average
@@ -1364,9 +1603,11 @@ avail_plt_df %>%
 
 ```
 
-Next, the availability of gender indicators in SDG 5 on gender equality are shown. This contains both the tier 1 and tier 2 indicators.
+Next, the availability of gender indicators in SDG 5 on gender equality
+are shown. This contains both the tier 1 and tier 2 indicators.
 
-Figure 4. Percentage of SDG 5 (Gender Equity) Indicators available between `r 2020-window` and 2020.  Each point corresponds to country
+Figure 4. Percentage of SDG 5 (Gender Equity) Indicators available
+between `r 2020-window` and 2020. Each point corresponds to country
 
 ```{r availabilitydat5}
 
@@ -1461,6 +1702,7 @@ avail_plt_df5 %>%
 ```
 
 Figure 4 by income group
+
 ```{r avail_chart4}
 
 #calculate regional average
@@ -1535,7 +1777,6 @@ avail_plt_df5 %>%
 
 ## Coverage Gaps for SDG Indicators requiring Gender Breakdown
 
-
 ```{r}
 
 lower_year <- 2015
@@ -1577,7 +1818,6 @@ sdg_gender_disagg_df <- sdg_gender_disagg_df %>%
   bind_rows(sdg_gender_exists_df) 
 ```
 
-
 ```{r}
 #Table 1, can you confirm if any countries have a sex-disaggregate data point (for the 32 indicators that are sex disaggregated) but not a population data point? I would assume there are no cases, but want to confirm.
   sdg_gender_disagg_country_df <- un_sdg_gender_filled_df %>%
@@ -1600,7 +1840,6 @@ sdg_gender_disagg_country_df %>%
   )
 
 ```
-
 
 ```{r disaggplt, eval=FALSE, fig.height=6, fig.width=9, include=FALSE}
 
@@ -1646,8 +1885,22 @@ ggplot(disagg_plt_df, aes(x=code, y=Availability, group=sex,fill=sex)) +
 
 ```
 
-For indicators that require a breakdown by sex, in several cases there are large gaps between the percentage of countries with a recent value for females and whether a value for any sex or both sexes combined exists.  For instance, while SDG indicator 1.2.1, on the proportion of population living below the national poverty line, specifies that a breakdown by sex is available.  This information is not currently available in the UN global SDG database.  Additionally, for SDG indicator 1.3.1, on Proportion of population covered by social protection floors/systems, by sex, 79.4% of countries have a recent value for any/both sexes, but only 7.8% of countries have a recent value for females.  To cite another example, for SDG indicator 4.1.1, Proportion of children and young people (a) in grades 2/3; (b) at the end of primary; and (c) at the end of lower secondary achieving at least a minimum proficiency level in (i) reading and (ii) mathematics, by sex, 62.4% of countries have a value for any/both sexes, but only 52.3% of countries have a value for females.
-
+For indicators that require a breakdown by sex, in several cases there
+are large gaps between the percentage of countries with a recent value
+for females and whether a value for any sex or both sexes combined
+exists. For instance, while SDG indicator 1.2.1, on the proportion of
+population living below the national poverty line, specifies that a
+breakdown by sex is available. This information is not currently
+available in the UN global SDG database. Additionally, for SDG indicator
+1.3.1, on Proportion of population covered by social protection
+floors/systems, by sex, 79.4% of countries have a recent value for
+any/both sexes, but only 7.8% of countries have a recent value for
+females. To cite another example, for SDG indicator 4.1.1, Proportion of
+children and young people (a) in grades 2/3; (b) at the end of primary;
+and (c) at the end of lower secondary achieving at least a minimum
+proficiency level in (i) reading and (ii) mathematics, by sex, 62.4% of
+countries have a value for any/both sexes, but only 52.3% of countries
+have a value for females.
 
 ```{r table}
 
@@ -1711,6 +1964,8 @@ save_as_docx(table1, path = paste(output_dir, '/table1.docx',sep=""))
 
 region <- unique(country_metadata$region)
 income_groups <- unique(country_metadata$income_level)
+income_alt_groups <- c('Hgh Income & Pop <= 500K', 'Hgh Income & Pop >= 500K', 'Upper middle income', 'Lower middle income', 'Low income')
+
 
 table_1_fun <- function(group) {
   
@@ -1719,6 +1974,17 @@ table_1_fun <- function(group) {
     countries <- country_metadata %>% filter(region==group) %>% pluck('iso3c')
   } else if (group %in% income_groups) {
         countries <- country_metadata %>% filter(income_level==group) %>% pluck('iso3c')
+  } else if (group %in% income_alt_groups) {
+        countries <- country_metadata %>%
+          left_join(pop_df) %>%
+          mutate(income_alt_groups=case_when(
+            income_level=="High income" & population<=500000 ~ "Hgh Income & Pop <= 500K",
+            income_level=="High income" & population>500000 ~ "Hgh Income & Pop >= 500K",
+            TRUE ~ income_level
+          )
+          )  %>%
+          filter(income_alt_groups==group) %>% 
+            pluck('iso3c')        
   } else if (group=="Global") {
     countries <- country_metadata  %>% pluck('iso3c')
   }
@@ -1819,6 +2085,8 @@ tab_lic <- table_1_fun("Low income")
 tab_lmic <- table_1_fun("Lower middle income")
 tab_umic <- table_1_fun("Upper middle income")
 tab_hic <- table_1_fun("High income" )
+tab_hic_small <- table_1_fun("Hgh Income & Pop <= 500K" )
+tab_hic_large <- table_1_fun("Hgh Income & Pop >= 500K" )
 
 tab_global <- table_1_fun("Global" )
 
@@ -1833,35 +2101,51 @@ tab_full <- tab_eap %>%
   left_join(tab_lmic) %>%
   left_join(tab_umic) %>%
   left_join(tab_hic) %>%
+  left_join(tab_hic_small) %>%
+  left_join(tab_hic_large) %>%
   left_join(tab_global) 
 
 write_excel_csv(tab_full,
                 paste(output_dir, '/table1_full.csv',sep=""))
 ```
 
-
-
-
 # Comparison of Gender Data Availability and SPI Scores
 
-Next, we assess how a country's overall statistical performance relates to the availability of gender data, and identified countries that may have strong systems overall but are underperforming on gender statistics.  To do so, we compare the availability of gender statistics to scores on the World Bank’s Statistical Performance Indicators (SPI).
+Next, we assess how a country's overall statistical performance relates
+to the availability of gender data, and identified countries that may
+have strong systems overall but are underperforming on gender
+statistics. To do so, we compare the availability of gender statistics
+to scores on the World Bank's Statistical Performance Indicators (SPI).
 
-The World Bank’s Statistical Performance Indicators (SPI) measure statistical performance across 174 countries.
-The indicators are grouped into five pillars: (1) data use, which captures the demand side of the statistical
-system; (2) data services, which looks at the interaction between data supply and demand such as the openness
-of data and quality of data releases; (3) data products, which reviews whether countries report on important
-indicators; (4) data sources, which assesses whether censuses, surveys, and other data sources are created; and
-(5) data infrastructure, which captures whether foundations such as financing, skills, and governance needed
-for a strong statistical system are in place. Within each pillar is a set of dimensions, and under each dimension
-is a set of indicators to measure performance. The indicators provide a time series extending at least from 2016
-to 2019 in all cases, with some indicators going back to 2004. The data for the indicators are from a variety of
-sources, including databases produced by the World Bank, International Monetary Fund (IMF), United Nations
-(UN), Partnership in Statistics for Development in the 21st Century (PARIS21), and Open Data Watch—and
-in some cases, directly from national statistical office websites. The indicators are also summarized as an index, termed the SPI overall score,
-with scores ranging from a low of 0 to a high of 100. 
+The World Bank's Statistical Performance Indicators (SPI) measure
+statistical performance across 174 countries. The indicators are grouped
+into five pillars: (1) data use, which captures the demand side of the
+statistical system; (2) data services, which looks at the interaction
+between data supply and demand such as the openness of data and quality
+of data releases; (3) data products, which reviews whether countries
+report on important indicators; (4) data sources, which assesses whether
+censuses, surveys, and other data sources are created; and (5) data
+infrastructure, which captures whether foundations such as financing,
+skills, and governance needed for a strong statistical system are in
+place. Within each pillar is a set of dimensions, and under each
+dimension is a set of indicators to measure performance. The indicators
+provide a time series extending at least from 2016 to 2019 in all cases,
+with some indicators going back to 2004. The data for the indicators are
+from a variety of sources, including databases produced by the World
+Bank, International Monetary Fund (IMF), United Nations (UN),
+Partnership in Statistics for Development in the 21st Century (PARIS21),
+and Open Data Watch---and in some cases, directly from national
+statistical office websites. The indicators are also summarized as an
+index, termed the SPI overall score, with scores ranging from a low of 0
+to a high of 100.
 
-There is a positive relationship between countries SPI overall scores and the availability of gender data as indicated in Figure 3.  The figure suggests that the countries statistical system, as measured by the SPI overall score, explains a little over 40% of the variation in the availability of Gender SDG Indicators.  This is based on the R-squared from a linear regression of the availability of the SDG gender indicators on the SPI overall score in 2019.  
-
+There is a positive relationship between countries SPI overall scores
+and the availability of gender data as indicated in Figure 3. The figure
+suggests that the countries statistical system, as measured by the SPI
+overall score, explains a little over 40% of the variation in the
+availability of Gender SDG Indicators. This is based on the R-squared
+from a linear regression of the availability of the SDG gender
+indicators on the SPI overall score in 2019.
 
 ```{r spidf2020}
 
@@ -2014,7 +2298,8 @@ ind_lgth<-nrow(list_df)
 
 ```
 
-Figure 3. Plot of SPI overall score on Availability of Gender SDG Indicators
+Figure 3. Plot of SPI overall score on Availability of Gender SDG
+Indicators
 
 ```{r spiplt1}
 
@@ -2146,9 +2431,19 @@ spi_gdp_plt <-combined_df %>%
 spi_gdp_plt
 
 ```
-To highlight countries where these relationships do not hold as well, the next figure shows the 15 countries that most over-perform and the 15 countries that most under-perform on the availability of gender data compared to their SPI overall score.  
 
-To produce this figure, we use OLS regression to estimate a linear model of the availability of gender SDG data on the SPI overall score in 2019. The residual can be interpreted as the difference between the country’s availability of gender data and the expected availability given their SPI overall score. Countries with values of the residual greater than zero are over-performing based on their SPI overall score and countries with residuals less than zero are under-performing. 
+To highlight countries where these relationships do not hold as well,
+the next figure shows the 15 countries that most over-perform and the 15
+countries that most under-perform on the availability of gender data
+compared to their SPI overall score.
+
+To produce this figure, we use OLS regression to estimate a linear model
+of the availability of gender SDG data on the SPI overall score in 2019.
+The residual can be interpreted as the difference between the country's
+availability of gender data and the expected availability given their
+SPI overall score. Countries with values of the residual greater than
+zero are over-performing based on their SPI overall score and countries
+with residuals less than zero are under-performing.
 
 ```{r}
 #get top 10 and bottom 10 over performers compared to gdp and hci
@@ -2169,10 +2464,10 @@ gender_overperformers_df <- combined_df %>%
   head(15)
 
 #get top performing country
-top_outcome<-round(gender_overperformers_df$value[1],1)
-top_pred<-round(as.numeric(gender_overperformers_df$pred[1]),1)
-top_res<-round(as.numeric(gender_overperformers_df$resid[1]),1)
-top_country<-gender_overperformers_df$country[1]
+top_outcome<-round(gender_overperformers_df$value[4],1)
+top_pred<-round(as.numeric(gender_overperformers_df$pred[4]),1)
+top_res<-round(as.numeric(gender_overperformers_df$resid[4]),1)
+top_country<-gender_overperformers_df$country[4]
 
 gender_underperformers_df <- combined_df %>%
   modelr::add_predictions(m_spi) %>%
@@ -2186,15 +2481,31 @@ gender_underperformers_df <- combined_df %>%
 gender_overperformers_plot <-  gender_overperformers_df %>%
   bind_rows(gender_underperformers_df) %>%
   arrange(resid) %>%
-  mutate(n_ind=resid*ind_lgth/100)#transform data to number of additional indicators
+  mutate(n_ind=resid*50/100)#transform data to number of additional indicators
 ```
 
+The data is presented in two ways. First, the number of additional SDG
+indicators compared to the expected number based on the SPI overall
+score is shown. This is calculated by taking the residual from the
+regression described above and multiplying by the number of Gender
+related SDG indicators (`r ind_lgth` indicators). To give a specific
+example, `r top_country` reported on `r top_outcome`% of the SDG gender
+indicators. Based on the SPI overall score of the country, it was
+expected to produce `r top_pred` SDG gender indicators. This resulted in
+a `r top_res` percentage point difference in the percentage of SDG
+gender indicators available. By multiplying this by the total number of
+SDG indicators on gender (`r 50` indicators), we get the additional SDG
+indicators compared to expected of `r round(top_res*50/100,0)`.
 
-The data is presented in two ways.  First, the number of additional SDG indicators compared to the expected number based on the SPI overall score is shown.  This is calculated by taking the residual from the regression described above and multiplying by the number of Gender related SDG indicators (`r ind_lgth` indicators).  To give a specific example, `r top_country` reported on `r top_outcome`% of the SDG gender indicators.  Based on the SPI overall score of the country, it was expected to produce `r top_pred` SDG gender indicators.  This resulted in a `r top_res` percentage point difference in the percentage of SDG gender indicators available. By multiplying this by the total number of SDG indicators on gender (`r ind_lgth` indicators), we get the additional SDG indicators compared to expected of `r round(top_res*ind_lgth/100,0)`.
+In the second appoach, the data is presented as the percentage
+increase/decrease in SDG indicators available compared to the expected
+amount. To take `r top_country` as an example, the percentage increase
+in SDG indicators compared to expected is 100 times `r top_res` divided
+by `r top_pred` or `r round(top_res/top_pred,2)`.
 
-In the second appoach, the data is presented as the percentage increase/decrease in SDG indicators available compared to the expected amount.  To take `r top_country` as an example, the percentage increase in SDG indicators compared to expected is 100 times `r top_res` divided by `r top_pred` or `r round(top_res/top_pred,2)`.
+Figure 4: Top 15 Over/Under-Performers on Availability of Gender SDG
+Indicators compared to the SPI Overall Score in 2019
 
-Figure 4: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
 ```{r overperformers}
 
 
@@ -2231,8 +2542,9 @@ gender_overperformers_plot +
                   )
 ```
 
+Figure 4b: Top 15 Over/Under-Performers on Availability of Gender SDG
+Indicators compared to the SPI Overall Score in 2019
 
-Figure 4b: Top 15 Over/Under-Performers on Availability of Gender SDG Indicators compared to the SPI Overall Score in 2019
 ```{r overperformersb}
 
 #get top 10 and bottom 10 over performers compared to gdp and hci
@@ -2297,9 +2609,19 @@ gender_overperformers_plot +
                   )
 ```
 
-As discussed above, a simple OLS regresion of the availability of gender SDG indicators on the SPI overall score, indicates that around 40% of the variation in the availability of gender SDG indicators is explained by the statistical performance of a country, leaving around 60% unexplained.  Below a discussion will be given of other factors that may explain the availability of gender SDG indicators, including the region, income level, population size, and level of female empowerment in a country as measured by the [Women, Business, and the Law index](https://wbl.worldbank.org/en/wbl).  
+As discussed above, a simple OLS regresion of the availability of gender
+SDG indicators on the SPI overall score, indicates that around 40% of
+the variation in the availability of gender SDG indicators is explained
+by the statistical performance of a country, leaving around 60%
+unexplained. Below a discussion will be given of other factors that may
+explain the availability of gender SDG indicators, including the region,
+income level, population size, and level of female empowerment in a
+country as measured by the [Women, Business, and the Law
+index](https://wbl.worldbank.org/en/wbl).
 
-Table. Regression of Availability of SDG Indicators on Explanatory Variables.  Data from year 2019.
+Table. Regression of Availability of SDG Indicators on Explanatory
+Variables. Data from year 2019.
+
 ```{r model}
 
 
@@ -2338,6 +2660,7 @@ modelsummary(models,
              )
 
 ```
+
 Regressions with less than 1.5 million in population as a control.
 
 ```{r modelalt}
@@ -2382,7 +2705,6 @@ modelsummary(models,
 ```
 
 Maturity Table
-
 
 ```{r}
 #get overall gender data availability measure
@@ -2492,10 +2814,17 @@ flextable(sumstats_df) %>%
 
 ```
 
-
 # Data Sources for Gender Indicators
 
-In what will follow, the most common data sources for each of the SDG indicators in Table 1 will be discussed.  This can provide some guidance on the types of data sources that are typically used to report on these indicators, and reveal gaps that may exists for specific countries.  Data sources are based on the metadata in the [UN Global SDG Indicator Database](https://unstats.un.org/sdgs/indicators/database/).^[Data was pulled from the UN Global SDG Indicators database on July 19, 2021.]
+In what will follow, the most common data sources for each of the SDG
+indicators in Table 1 will be discussed. This can provide some guidance
+on the types of data sources that are typically used to report on these
+indicators, and reveal gaps that may exists for specific countries. Data
+sources are based on the metadata in the [UN Global SDG Indicator
+Database](https://unstats.un.org/sdgs/indicators/database/).[^1]
+
+[^1]: Data was pulled from the UN Global SDG Indicators database on July
+    19, 2021.
 
 ```{r sources, eval=FALSE, cache=cacher, include=FALSE}
 
@@ -2525,7 +2854,6 @@ source_df_long <- sources_df %>%
   unnest(data)
 ```
 
-
 ```{r loaddata}
 
 
@@ -2535,7 +2863,6 @@ source_df_long <- sources_df %>%
   unnest(data)
 
 ```
-
 
 ```{r categorize}
 
@@ -2792,7 +3119,9 @@ tab_full %>%
 
 ```
 
-Now show a table for  the top 10 for each indicator.  In some cases, the sources are unique for each country.  In that case, a set of 5 are chosen.
+Now show a table for the top 10 for each indicator. In some cases, the
+sources are unique for each country. In that case, a set of 5 are
+chosen.
 
 ```{r souceplot, eval=FALSE, fig.height=8, include=FALSE}
 
@@ -2823,11 +3152,10 @@ print(sources_df_plt$plot)
 
 ```
 
-
 <!-- ```{r sourcetab} -->
 
-
 <!-- #use map to loop through SDG indicators and plot top 5 data sources for each indicator -->
+
 <!-- sources_df_tab_list <- sources_df$description1  -->
 
 <!-- sources_tab_fun <- function(variables) { -->
@@ -2835,329 +3163,483 @@ print(sources_df_plt$plot)
 <!--   sdg_code<- list_df[which(list_df$description1==variables),]$code -->
 
 <!--    sources_explained %>% -->
+
 <!--      ungroup() %>% -->
+
 <!--     filter(description1==variables) %>% -->
+
 <!--     rename(Source=datatype_con) %>% -->
+
 <!--     select(Source, n, `Example Source`) %>% -->
+
 <!--     rename(`Number of Times Used`=n) %>% -->
+
 <!--     flextable() %>%  -->
+
 <!--     add_header_lines(variables) %>% -->
+
 <!--     add_header_lines(paste0("Indicator sources for SDG ", sdg_code,". ")) %>%  -->
+
 <!--     theme_vanilla() %>%  -->
+
 <!--     add_footer_lines(values = "Source: UN Global SDG Database.") %>%  -->
+
 <!--     autofit() -->
-
-
-
 
 <!-- } -->
 
 <!-- sources_tab_fun(sources_df_tab_list[1]) -->
+
 <!-- # for (i in c(1:length(sources_df_tab_list))) { -->
+
 <!-- #   sources_tab_fun(sources_df_tab_list[i]) -->
+
 <!-- #  -->
+
 <!-- # } -->
-<!-- ``` -->
-
-<!-- ```{r}  -->
 
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
+<!-- ``` -->
+
+<!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[2]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
 
 <!-- sources_tab_fun(sources_df_tab_list[3]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[4]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[5]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[6]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[7]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[8]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
 
 <!-- sources_tab_fun(sources_df_tab_list[9]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[10]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[11]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[12]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[13]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[14]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[15]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[16]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[17]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[18]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[19]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[20]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[21]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[22]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[23]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[24]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[25]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[26]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[27]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[28]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[29]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[30]) -->
+
 <!-- ``` -->
 
-
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[31]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[32]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[33]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[34]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[35]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[36]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[37]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[38]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[39]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[40]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[41]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[42]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[43]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[44]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[45]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[46]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[47]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[48]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[49]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[50]) -->
+
 <!-- ``` -->
 
-
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[51]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[52]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[53]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[54]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[55]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[56]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[57]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[58]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[59]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[60]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[61]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[62]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[63]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[64]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[65]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[66]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[67]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[68]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[69]) -->
+
 <!-- ``` -->
 
 <!-- ```{r}  -->
+
 <!-- sources_tab_fun(sources_df_tab_list[70]) -->
+
 <!-- ``` -->
 
 # Annex
 
 ## Data Availability Including Modelled Data
 
+For each indicator, we will produce a value for each country with the
+following coding scheme:
 
+-   **1 Point**: Indicator exists and the value is based on the
+    **country**, **country data adjusted**, **estimated**, **modeled or
+    Global Monitoring** data\
+-   **0 Points**: Indicator **does not exists**
 
-For each indicator, we will produce a value for each country with the following coding scheme:    
+We give countries no credit for modeled data, because the country did
+not produce indicators in a form that was directly usable for reporting
+on an SDG indicator.
 
-  * **1 Point**: Indicator exists and the value is based on the **country**, **country data adjusted**, **estimated**, **modeled or Global Monitoring** data    
-  * **0 Points**: Indicator **does not exists**
-  
-We give countries no credit for modeled data, because the country did not produce indicators in a form that was directly usable for reporting on an SDG indicator.
-  
-When we average over all indicators in a goal to get a score, we compute a 5 year moving average to avoid year to year variability in reporting for SDGs.  The overall score for an SDG is then the 5 year average of the percentage of indicator values based on **country**, **country data adjusted**, or **estimated or Global Monitoring** data that were available for the SDG.
-
+When we average over all indicators in a goal to get a score, we compute
+a 5 year moving average to avoid year to year variability in reporting
+for SDGs. The overall score for an SDG is then the 5 year average of the
+percentage of indicator values based on **country**, **country data
+adjusted**, or **estimated or Global Monitoring** data that were
+available for the SDG.
 
 ```{r savemod, echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -3216,7 +3698,6 @@ write_excel_csv(un_sdg_df_modelled, paste(output_dir, '/un_sdg_df_modelled.csv',
 
 ```
 
-
 ```{r readgendermod}
 
 
@@ -3261,7 +3742,6 @@ un_sdg_gender_df_modelled <- un_sdg_gender_df_modelled %>%
 write_excel_csv(un_sdg_gender_df_modelled, paste(output_dir, '/un_sdg_gender_df_modelled.csv',sep=""))
 
 ```
-
 
 ```{r gender_shapemod}
 
@@ -3323,7 +3803,6 @@ sdg_gender_disagg_df <- sdg_gender_disagg_df %>%
   bind_rows(sdg_gender_exists_df) 
   
 ```
-
 
 ```{r tablemod}
 
