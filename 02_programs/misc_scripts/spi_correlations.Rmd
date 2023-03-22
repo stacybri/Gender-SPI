@@ -33,8 +33,27 @@ output_dir <- paste(dir, '03_output_data', sep="/")
 
 ```{r data}
 window <- 5
+pop_filt <- 200000
+
+ #add in population
+pop_df <- wbstats::wb_data(country="all",
+             indicator='SP.POP.TOTL',
+             start_date=2004,
+             end_date=2021) %>%
+  mutate(date=as.numeric(date)) %>%
+  mutate(population=SP.POP.TOTL) %>%
+  select(iso3c, date, population) 
+
+
+#get a list of countries that are below the population limit defined at to of script
+pop_exlude_cntry <- pop_df %>% filter(date==2021) %>% filter(population <= pop_filt) %>% select(iso3c) %>% pluck(1)
+pop_exlude_cntry_names <- pop_df %>% left_join(wbstats::wb_countries()) %>% filter(date==2021) %>% filter(population <= pop_filt) %>% select(country) %>% pluck(1)
+
+
 #get overall gender data availability measure
-avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_',window,'yr.csv')) %>%
+avail_SPI_df <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_',window,'yr.csv')) %>%   
+  filter(!(iso3c %in% pop_exlude_cntry)) %>%
+  
   mutate(availability=100*ind_quality) %>% #convert ind_quality measure which is 0-1 to percentage available by multiplying by 100
   filter(date==2019 & goal=="Combined") #keep just most recent year
 
@@ -43,6 +62,8 @@ SPI_df <- wbstats::wb_data(indicator=c('IQ.SPI.OVRL','IQ.SPI.PIL1', 'IQ.SPI.PIL2
                                        'NY.GDP.PCAP.PP.CD', 'NY.GDP.MKTP.PP.CD','SP.POP.TOTL', 'SG.LAW.INDX',
                                        'HD.HCI.OVRL','GE.EST'),
                            start_date = 2019) 
+
+
 
 
 #combine data
@@ -349,7 +370,7 @@ sdg_tab_merge <- sdg_tab %>%
             Gender_Breakdown=Gender_Breakdown)
 
 #get a list of all SDG indicators
-indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
+indicators_url <- paste0(raw_dir, '/misc/un_indicators.json')
 
 indicators_list <- sdg_tab %>%
   filter(!is.na(Code))

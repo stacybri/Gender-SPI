@@ -1,0 +1,235 @@
+---
+title: "Gender Data Availability Plots"
+author: "Brian Stacy"
+date: "`r Sys.Date()`"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(plotly)
+library(Hmisc)
+#load data
+avail_plt_df <- read_csv('SPI_Gender_availability_inc_reg_pop.csv')
+#set data window
+window <- 4
+upper_year <- 2020
+lower_year <- 2020-window
+```
+
+
+
+Availability of Gender SDG indicators by region and income group.  Control the sliders below to filter out countries by population size.
+
+```{r}
+numericInput('popmin',label='Population lower limit', value=1)
+numericInput('popmax',label='Population upper limit', value=max(avail_plt_df$population))
+p()
+radioButtons("weights",
+                           label = "Choose whether to weight summary statistics by population",
+                           choices = c("Unweighted", "Population Weighted"),
+                           selected = 'Unweighted')
+p()
+p('Figure 1. Percentage of SDG Gender Indicators available between
+2016 and 2020 by region. Each point corresponds to country')
+p()
+plotlyOutput("regplot")
+p()
+p('Figure 2. Percentage of SDG Gender Indicators available between
+2016 and 2020 by income group. Each point corresponds to country')
+plotlyOutput("incplot")
+
+```
+
+
+
+```{r}
+output$regplot <- renderPlotly({
+  
+
+  
+  chart_data <- avail_plt_df %>%
+    filter(between(population,input$popmin,input$popmax)) 
+  
+ 
+  
+    if (input$weights=='Unweighted') {
+      chart_data <- chart_data %>%
+        mutate(wgt=1)
+    } else  {
+      chart_data <- chart_data %>% 
+        mutate(wgt=population)
+    }
+
+   #calculate global average
+  world_avg <-
+    chart_data %>%
+    ungroup() %>%
+    summarise(avg = wtd.mean(availability, na.rm = T, weights=wgt)) %>%
+    pull(avg)
+  
+  world_p25 <- scales::comma(wtd.quantile(chart_data$availability, p=0.25, na.rm=TRUE, weights=chart_data$wgt))
+  world_p50 <- scales::comma(wtd.quantile(chart_data$availability, p=0.5, na.rm=TRUE, weights=chart_data$wgt))
+  world_p75 <- scales::comma(wtd.quantile(chart_data$availability, p=0.75, na.rm=TRUE, weights=chart_data$wgt))
+  
+  #calculate regional average
+  reg_avg <-
+    chart_data %>%
+    filter(!is.na(region)) %>%
+    group_by(region) %>%
+    summarise(avg = wtd.mean(availability, na.rm = T, weights=wgt)) %>%
+    arrange(-avg) 
+  
+  reg_avg <- reg_avg %>%
+      mutate(region=factor(region, levels= c(
+                                             "Sub-Saharan Africa",
+                                             "South Asia",
+                                             "North America",
+                                             "Middle East & North Africa",
+                                             "Latin America & Caribbean",
+                                             "Europe & Central Asia",
+                                             "East Asia & Pacific"))) 
+  
+    chart_data <- chart_data %>%
+      mutate(region=factor(region, levels= c(
+                                             "Sub-Saharan Africa",
+                                             "South Asia",
+                                             "North America",
+                                             "Middle East & North Africa",
+                                             "Latin America & Caribbean",
+                                             "Europe & Central Asia",
+                                             "East Asia & Pacific"))) 
+  
+  
+  p <- chart_data %>%
+    filter(!is.na(region)) %>%
+    #mutate(region=factor(region, levels=reg_avg$region)) %>%
+    ggplot(aes(y=availability, x=region,  color=region)) +
+    geom_segment(
+      data=reg_avg,
+      aes(x = region, xend = region,
+          y = world_avg, yend = avg),
+      size = 0.8
+    ) +
+    #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+    geom_jitter(aes(size = population, group=country), alpha = 0.25, width = 0.2) +
+    #geom_point(size = 3, alpha = 0.15) +
+    #stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+    geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black", position=position_dodge()) +
+    geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+    labs(
+      
+      subtitle=paste0('Population range: ', scales::comma(input$popmin),' - ',scales::comma(input$popmax)),
+      caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
+    theme_bw() +
+    coord_flip() +
+    ylab('SDG Gender Indicator Availability') +
+    # scale_y_continuous(
+    #   labels=scales::comma
+    # ) +
+    # scale_y_log10(
+    #   labels=scales::comma
+    # ) +
+    expand_limits(y=c(0,100)) +
+    theme(
+      legend.position = 'none',
+      axis.title.y = element_blank(),
+      text = element_text(size=14) ,
+      title=element_text(size=9)
+    ) 
+  
+    plotly::ggplotly(p)
+})
+```
+
+
+
+
+
+```{r avail_chart11}
+
+output$incplot <- renderPlotly({
+  
+  
+  chart_data <- avail_plt_df %>%
+      filter(between(population,input$popmin,input$popmax))
+  
+    
+    if (input$weights=='Unweighted') {
+      chart_data <- chart_data %>%
+        mutate(wgt=1)
+    } else  {
+      chart_data <- chart_data %>% 
+        mutate(wgt=population)
+    }
+  
+  #calculate regional average
+  inc_avg <-
+    chart_data %>%
+    mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+    filter(!is.na(income_level) & income_level != "Not classified") %>%
+    group_by(income_level) %>%
+    summarise(avg = wtd.mean(availability, na.rm = T, weights=wgt)) %>%
+    arrange(-avg)
+  
+  #calculate global average
+  world_avg <-
+    chart_data %>%
+    summarise(avg = wtd.mean(availability, na.rm = T, weights=wgt)) %>%
+    pull(avg)
+  world_p25 <- scales::comma(wtd.quantile(chart_data$availability, p=0.25, na.rm=TRUE, weights=chart_data$wgt))
+  world_p50 <- scales::comma(wtd.quantile(chart_data$availability, p=0.5, na.rm=TRUE, weights=chart_data$wgt))
+  world_p75 <- scales::comma(wtd.quantile(chart_data$availability, p=0.75, na.rm=TRUE, weights=chart_data$wgt))
+  
+  chart_data <- chart_data %>%
+      mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                         "Lower middle income", "Low income"))) 
+
+  p <- chart_data %>%
+    filter(!is.na(income_level)) %>%
+    mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+                                                         "Lower middle income", "Low income"))) %>%
+    arrange(income_level) %>%
+    ggplot(aes(y=availability, x=income_level,
+               color=income_level)) +
+    geom_segment(
+      data=inc_avg,
+      aes(x = income_level, xend = income_level,
+          y = world_avg, yend = avg),
+      size = 0.8
+    ) +
+    #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+    geom_jitter(aes(size = population, group=country), alpha = 0.25, width = 0.2, ) +
+    #geom_point(size = 3, alpha = 0.15) +
+    #stat_summary(fun = wtd.mean, fun.args = list(weights=wgt), geom = "point", size = 5, color='black') +
+    geom_text(data=inc_avg, aes(y=avg, x=income_level, label=scales::comma(round(avg,1))), color="black", position=position_dodge()) +
+    geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+    labs(
+      
+      subtitle=paste0('Population range: ', scales::comma(input$popmin),' - ',scales::comma(input$popmax)),
+      caption=str_wrap(paste0("The 25th percentile of the SDG gender availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
+    theme_bw() +
+    coord_flip() +
+      expand_limits(y=c(0,100)) +
+    ylab('SDG Gender Indicator Availability') +
+     scale_x_discrete(
+       limits=levels(chart_data$income_level),
+       breaks=levels(chart_data$income_level)
+     ) +
+    # scale_y_log10(
+    #   labels=scales::comma
+    # ) +
+    theme(
+      legend.position = 'none',
+      axis.title.y = element_blank(),
+      text = element_text(size=14) ,
+      title=element_text(size=9)
+    ) 
+  
+    plotly::ggplotly(p)
+
+})
+
+```
