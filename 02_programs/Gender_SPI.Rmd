@@ -1648,6 +1648,17 @@ avail_plt_df5 <- read_csv(paste0(output_dir, '/SPI_Gender_UNSD_data_5yr.csv')) %
 
 ```
 
+```{r fig2}
+
+fig2_df <- avail_plt_df5 %>%
+  mutate(count=round(ind_quality*goal_count,0)) %>%
+  group_by(count) %>%
+  summarise(n=n()) %>%
+  mutate(share=n/sum(n))
+
+```
+
+
 Figure 4. Percentage of SDG 5 (Gender Equity) Indicators available
 between `r 2020-window` and 2020. Each point corresponds to country. N=`r nrow(avail_plt_df5)`.
 
