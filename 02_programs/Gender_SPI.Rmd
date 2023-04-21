@@ -2047,6 +2047,7 @@ table_1_fun <- function(group) {
   #aggregate the gender data to country level
      sdg_gender_exists_df <- un_sdg_filled_df %>%  
       filter(between(date, lower_year, upper_year)) %>%
+      filter(!(iso3c %in% pop_exlude_cntry)) %>%
       filter(iso3c %in% countries) %>%
       group_by(iso3c,ccode) %>%
       summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
@@ -2063,6 +2064,7 @@ table_1_fun <- function(group) {
     
     sdg_gender_disagg_df <- un_sdg_gender_filled_df %>%
       filter(between(date, lower_year, upper_year)) %>%
+      filter(!(iso3c %in% pop_exlude_cntry)) %>%
       filter(iso3c %in% countries) %>%
       group_by(iso3c, ccode, sex) %>%
       summarise(ind_quality=max(ind_quality, na.rm=T)) %>% #check if any values (even sub-indicators) for indicator
@@ -2321,18 +2323,23 @@ gii_sigi_df <- readxl::read_excel(paste0(raw_dir, "/misc/GII_SIGI.xlsx")) %>%
          sigi=`SIGI 2019`)
 
 
+#read in the data on NSO data availability
+nso_df <- read_csv(paste0(raw_dir, "/misc/NSOs gender stats content.csv"))
+
 #combine data
 avail_wbstats_df <- avail_SPI_df %>%
   left_join(gii_sigi_df) %>%
   left_join(SPI_df) %>%
   left_join(wdi_df) %>%
   mutate(outcome=IQ.SPI.OVRL,
-         value=availability)
+         value=availability) %>%
+  left_join(nso_df)
 
 combined_df <- avail_wbstats_df 
 
 combined_df_sv <- combined_df %>%
-  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi,NY.GDP.PCAP.KD) %>%
+  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi,NY.GDP.PCAP.KD, `Amount of Gender Statistics`) %>%
+  janitor::clean_names() %>%
   rename_with(~gsub(".","_",.x, fixed=TRUE)) 
 
 var.labels = c(IQ_SPI_OVRL="SPI Overall Score", 
@@ -2345,7 +2352,8 @@ var.labels = c(IQ_SPI_OVRL="SPI Overall Score",
                SG_LAW_INDX = "Women, Business, and Law",
                gii ="GII",
                sigi="SIGI",
-               NY_GDP_PCAP_KD="GDP per capita (constant 2015 US$)")
+               NY_GDP_PCAP_KD="GDP per capita (constant 2015 US$)",
+               amount_of_gender_statistics = "NSO Gender Data Availability")
 
 label(combined_df_sv) = as.list(var.labels[match(names(combined_df_sv), names(var.labels))])
 
@@ -3077,7 +3085,6 @@ Show a table of share of indicators using MICS or DHS.
 
 ```{r}
 mics_dhs_share <- sources_categorized_df %>%
-  left_join(list_df, by=c("goal", "target", "code", "code1", 'description', 'description1')) %>%
   group_by(ccode) %>%
   filter(!is.na(ccode)) %>%
   mutate(total=sum(n),
@@ -3085,12 +3092,41 @@ mics_dhs_share <- sources_categorized_df %>%
   ungroup() %>%
   filter(data_type=='MICS' | data_type=='Demographic and Health Survey') %>%
   group_by(ccode) %>%
-  summarise(total_mics_dhs=sum(number)/mean(total)) %>%
-  filter(total_mics_dhs>=0.5)
+  summarise(total_mics_dhs=100*sum(number)/mean(total)) 
+
+other_share <- sources_categorized_df %>%
+  group_by(ccode) %>%
+  filter(!is.na(ccode)) %>%
+  mutate(total=sum(n),
+         number=n) %>%
+  ungroup() %>%
+  filter(data_type!='MICS' & data_type!='Demographic and Health Survey') %>%
+  group_by(ccode) %>%
+  summarise(total_other=100*sum(number)/mean(total)) 
+# %>%
+#   filter(total_mics_dhs>=0.5)
 
 mics_dhs_list <- mics_dhs_share$ccode
 
 ```
+
+```{r}
+#add results to the table_full
+tab_fuller <- table1_df %>%
+  left_join(mics_dhs_share %>%
+  merge(table1dat , by = c("ccode"), all = T)) %>%
+  left_join(other_share %>%
+  merge(table1dat , by = c("ccode"), all = T)) %>%
+  select(-ccode, -Gender_Breakdown) %>%
+  mutate(total_mics_dhs=if_else(is.na(total_mics_dhs), 0,total_mics_dhs),
+         total_other=if_else(is.na(total_other),0,total_other),
+         total_no_obs=100-total_mics_dhs-total_other)
+
+
+write_excel_csv(tab_fuller,
+                paste(output_dir, '/table1_sources.csv',sep=""))
+```
+
 
 ```{r}
 #do same figure but add regional diaggregations
@@ -4017,4 +4053,192 @@ table1_combined <- table1_df %>%
                      `Any Data Available (w/ Modelled)`=`Any Data Available`))
 
 write_excel_csv(table1_combined, paste(output_dir, '/table1_combined.csv',sep=""))
+```
+
+
+### SDG Availability Generally
+
+```{r avail_chart_df}
+
+
+avail_ovl_plt_df <- read_csv(paste0(raw_dir, '/misc/SPI_index.csv')) %>%
+  filter((iso3c %in% avail_plt_df5$iso3c)) %>%
+  filter(date==2020) %>% #keep just most recent year
+  group_by(iso3c) %>%
+  slice(1) %>%
+  mutate(availability=SPI.INDEX.PIL3) %>%
+  ungroup() %>%
+  mutate(income_level=income)
+
+```
+
+
+Figure B1. Percentage of SDG Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country. N=`r nrow(avail_ovl_plt_df)`.
+
+```{r avail_chart_ovl2}
+
+#calculate global average
+world_avg <-
+  avail_ovl_plt_df %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  pull(avg)
+
+world_p25 <- scales::comma(quantile(avail_ovl_plt_df$availability, p=0.25, na.rm=TRUE))
+world_p50 <- scales::comma(quantile(avail_ovl_plt_df$availability, p=0.5, na.rm=TRUE))
+world_p75 <- scales::comma(quantile(avail_ovl_plt_df$availability, p=0.75, na.rm=TRUE))
+
+#calculate regional average
+reg_avg <-
+  avail_ovl_plt_df %>%
+  filter(!is.na(region)) %>%
+  group_by(region) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg) 
+
+reg_avg <- reg_avg %>%
+    mutate(region=factor(region, levels=reg_avg$region)) 
+
+
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(5.2, 6.62),
+    x2 = c(4.6, 7),
+    y1 = c(world_avg + 20, 50),
+    y2 = c(world_avg + 2, 56)
+  )
+
+
+
+
+avail_ovl_plt_df %>%
+  filter(!is.na(region)) %>%
+  mutate(region=factor(region, levels=reg_avg$region)) %>%
+  ggplot(aes(y=availability, x=region,  color=region)) +
+  geom_segment(
+    data=reg_avg,
+    aes(x = region, xend = region,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(aes(size = population), alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  #stat_summary(fun = mean, geom = "text", size = 5, color='black') +
+  geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black", position=position_dodge()) +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
+  theme_bw() +
+  coord_flip() +
+  ylab('SDG Gender Indicator Availability') +
+  # scale_y_continuous(
+  #   labels=scales::comma
+  # ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  expand_limits(y=c(0,100)) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 5.5, y = 75, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all countries:\n{round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 6.5, y = 50, family = "Poppins", size = 4, color = "gray20",
+    label = str_wrap("Regional average",15)
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
+#reg_avg %>% flextable()
+
+```
+
+Figure B1. Percentage of SDG Indicators available between
+`r 2020-window` and 2020. Each point corresponds to country By income
+group. N=`r nrow(avail_ovl_plt_df)`.
+
+```{r avail_chart_ovl3}
+
+#calculate regional average
+inc_avg <-
+  avail_ovl_plt_df %>%
+  #mutate(income_level = ifelse(iso3c == "VEN", "Upper middle income", income_level)) %>%
+  filter(!is.na(income_level) & income_level != "Not classified") %>%
+  group_by(income_level) %>%
+  summarise(avg = mean(availability, na.rm = T)) %>%
+  arrange(-avg) %>%
+  ungroup()                                        
+
+avail_ovl_plt_df <- avail_ovl_plt_df %>%
+    mutate(income_level=factor(income_level, levels= c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) 
+#set annotatino arrows
+arrows <-
+  tibble(
+    x1 = c(3.2, 1.5),
+    x2 = c(2.5, 1.15),
+    y1 = c(world_avg + 20, 55),
+    y2 = c(world_avg + 2, 65)
+  )
+
+avail_ovl_plt_df %>%
+  filter(!is.na(income_level)) %>%
+  mutate(income_level=ordered(income_level, levels=c("High income", "Upper middle income", 
+                                                       "Lower middle income", "Low income"))) %>%
+  arrange(income_level) %>%
+  ggplot(aes(y=availability, x=income_level,
+             color=income_level)) +
+  geom_segment(
+    data=inc_avg,
+    aes(x = income_level, xend = income_level,
+        y = world_avg, yend = avg),
+    size = 0.8
+  ) +
+  #geom_boxplot(aes(color=region), outlier.alpha = 0) +
+  geom_jitter(aes(size = population), alpha = 0.25, width = 0.2) +
+  #geom_point(size = 3, alpha = 0.15) +
+  #stat_summary(fun = mean, geom = "point", size = 5, color='black') +
+    geom_text(data=inc_avg, aes(y=avg, x=income_level, label=scales::comma(round(avg,1))), color="black", position=position_dodge()) +
+  #geom_text(data=reg_avg, aes(y=avg, x=region, label=scales::comma(round(avg,1))), color="black") +
+  geom_hline(aes(yintercept = world_avg), color = "gray70", size = 0.6) +
+  labs(caption=str_wrap(paste0("The 25th percentile of the SDG availability is ",world_p25,"%. The median is ",world_p50,"% and the 75th percentile is ",world_p75,"%.",' Means are unweighted.  Circles are sized according to population'),120)) +
+  theme_bw() +
+  coord_flip() +
+    expand_limits(y=c(0,100)) +
+  ylab('SDG Gender Indicator Availability') +
+   scale_x_discrete(
+     limits=levels(avail_plt_df$income_level),
+     breaks=levels(avail_plt_df$income_level)
+   ) +
+  # scale_y_log10(
+  #   labels=scales::comma
+  # ) +
+  theme(
+    legend.position = 'none',
+    axis.title.y = element_blank(),
+    text = element_text(size=14) 
+  ) +
+  annotate( #annotations
+    "text", x = 3.35, y = 60, family = "Poppins", size = 4, color = "gray20", lineheight = .9,
+    label = glue::glue("Average across all\ncountries: {round(world_avg, 1)}%")
+  ) +
+  annotate(
+    "text", x = 1.4, y = 48, family = "Poppins", size = 4, color = "gray20",
+    label = str_wrap("income level average",15)
+  ) +
+  geom_curve( #add curves for annotatino
+    data = arrows, aes(x = x1, y = y1, xend = x2, yend = y2),
+    arrow = arrow(length = unit(0.08, "inch")), size = 0.5,
+    color = "gray20", curvature = -0.3
+  )
+
 ```
