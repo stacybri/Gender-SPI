@@ -1190,7 +1190,8 @@ global <- un_sdg_filled_df %>%
     mutate(date=2020,
            goal="Combined") %>%
   mutate(availability=100*ind_quality) %>% #convert ind_quality measure which is 0-1 to percentage available by multiplying by 100
-  filter(date==2020 & goal=="Combined") #keep just most recent year
+  filter(date==2020 & goal=="Combined") %>% #keep just most recent year
+  filter(!(iso3c %in% pop_exlude_cntry)) 
 
 
 #calculate global average
