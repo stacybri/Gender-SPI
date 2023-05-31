@@ -57,13 +57,13 @@ wgt <- 1
 
 #set data window
 window <- 4
-upper_year <- 2020
-lower_year <- 2020-window
+upper_year <- 2022
+lower_year <- 2022-window
 pop_filt <- 200000
 
 # rerun the data
-rerun=FALSE
-cacher=TRUE
+rerun=TRUE
+cacher=FALSE
 ```
 
 ```{r programs}
@@ -530,7 +530,7 @@ write_excel_csv(un_sdg_gender_df, paste(output_dir, '/un_sdg_gender_disagg_df.cs
 ```{r gender_shape, cache=cacher}
 
 
-span <- c(2004:2020)
+span <- c(2004:2022)
 
 ####
 #create two empty datasets to merge onto
@@ -714,8 +714,8 @@ un_aki_fun <- function(date_start, date_end) {
 ####
 # 10 Year window
 ####
-#create this database for each year from 2004 to 2020 using a 5 year average
-for (i in c(2009:2020)) {
+#create this database for each year from 2004 to 2022 using a 5 year average
+for (i in c(2009:2022)) {
   
   start=i-9
   end=i
@@ -728,7 +728,7 @@ if (exists('un_aki')) {
   rm('un_aki')
 }
 #now append together and save
-for (i in c(2009:2020)) {
+for (i in c(2009:2022)) {
   
   temp<-get(paste('un_aki_',i, sep=""))
   
@@ -746,8 +746,8 @@ write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_10yr.csv', 
 ####
 # 8 Year window
 ####
-#create this database for each year from 2004 to 2020 using a 5 year average
-for (i in c(2007:2020)) {
+#create this database for each year from 2004 to 2022 using a 5 year average
+for (i in c(2007:2022)) {
   
   start=i-7
   end=i
@@ -760,7 +760,7 @@ if (exists('un_aki')) {
   rm('un_aki')
 }
 #now append together and save
-for (i in c(2007:2020)) {
+for (i in c(2007:2022)) {
   
   temp<-get(paste('un_aki_',i, sep=""))
   
@@ -778,8 +778,8 @@ write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_8yr.csv', s
 ####
 # 5 Year window
 ####
-#create this database for each year from 2004 to 2020 using a 5 year average
-for (i in c(2004:2020)) {
+#create this database for each year from 2004 to 2022 using a 5 year average
+for (i in c(2004:2022)) {
   
   start=i-window
   end=i
@@ -792,7 +792,7 @@ if (exists('un_aki')) {
   rm('un_aki')
 }
 #now append together and save
-for (i in c(2004:2020)) {
+for (i in c(2004:2022)) {
   
   temp<-get(paste('un_aki_',i, sep=""))
   
@@ -810,8 +810,8 @@ write_excel_csv(un_aki, path=paste(output_dir, 'SPI_Gender_UNSD_data_rev_5yr.csv
 ####
 # 3 Year window
 ####
-#create this database for each year from 2004 to 2020 using a 5 year average
-for (i in c(2004:2020)) {
+#create this database for each year from 2004 to 2022 using a 5 year average
+for (i in c(2004:2022)) {
   
   start=i-2
   end=i
@@ -824,7 +824,7 @@ if (exists('un_aki')) {
   rm('un_aki')
 }
 #now append together and save
-for (i in c(2004:2020)) {
+for (i in c(2004:2022)) {
   
   temp<-get(paste('un_aki_',i, sep=""))
   
@@ -842,8 +842,8 @@ write_excel_csv(un_aki, paste(output_dir, 'SPI_Gender_UNSD_data_3yr.csv', sep="/
 ####
 # 1 Year window
 ####
-#create this database for each year from 2004 to 2020 using a 5 year average
-for (i in c(2004:2020)) {
+#create this database for each year from 2004 to 2022 using a 5 year average
+for (i in c(2004:2022)) {
   
   start=i-0
   end=i
@@ -856,7 +856,7 @@ if (exists('un_aki')) {
   rm('un_aki')
 }
 #now append together and save
-for (i in c(2004:2020)) {
+for (i in c(2004:2022)) {
   
   temp<-get(paste('un_aki_',i, sep=""))
   

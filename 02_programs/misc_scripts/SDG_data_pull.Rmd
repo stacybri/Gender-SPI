@@ -33,7 +33,7 @@ raw_dir <- paste(dir, '01_raw_data', sep="/")
 output_dir <- paste(dir, '03_output_data', sep="/")
 
 #parameters
-upper_year = 2020
+upper_year = 2022
 lower_year = 2004
 window=upper_year-lower_year #set the window
 
@@ -199,18 +199,30 @@ un_pull <- function(series,start, end) {
 
 ```{r un_indicators}
 
-#get a list of all SDG indicators
-indicators_url <- 'https://unstats.un.org/SDGAPI/v1/sdg/Indicator/List?pageSize=10000'
+#read in table about gender sdgs
+sdg_tab <- read_csv(file = paste0(raw_dir, '/misc/Gender_SDGs.csv')) 
+indicators_list_df  <- sdg_tab
+sdg_tab_merge <- sdg_tab %>%
+  #filter(!is.na(Code)) %>%
+  transmute(ccode=ccode,
+            code1=Code,
+            code=SDG,
+            Gender_Breakdown=Gender_Breakdown)
 
-#SDG 4.1.1, 4.2.1, 4.5.1, 4.6.1
-indicators_list_df <- read_csv(paste0(raw_dir,"/misc/Gender_SDGs.csv")) 
-indicators_list <- indicators_list_df$Code
+#get a list of all SDG indicators
+indicators_url <- paste0(raw_dir, '/misc/un_indicators.json')
+
+indicators_list <- sdg_tab %>%
+  filter(!is.na(Code))
+
+indicators_list <- indicators_list$Code
 
 
 #bring in the list of indicators
 list_df <- jsonlite::fromJSON(indicators_url, flatten = TRUE) %>%
   as_tibble() %>%
   unnest(keep_empty = TRUE)
+
 
 list_df <- list_df %>%
   #filter(tier<=2) %>% # keep just the tier 1 & 2 indicators %>%
@@ -330,7 +342,7 @@ for (series in list_gender_df$code1) {
       mutate(
       values = map(
         code1,
-        un_pull_sex_disag,'2010','2020' )
+        un_pull_sex_disag,'2010','2022' )
       ) %>%
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality, sex) %>%
@@ -374,7 +386,7 @@ for (series in list_df$code1) {
       mutate(
       values = map(
         code1,
-        un_pull,'2010','2020' )
+        un_pull,'2010','2022' )
       ) %>%
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
@@ -483,7 +495,7 @@ for (series in list_gender_df$code1) {
       mutate(
       values = map(
         code1,
-        un_pull_sex_disag_modelled,'2010','2020' )
+        un_pull_sex_disag_modelled,'2010','2022' )
       ) %>%
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality, sex) %>%
@@ -527,7 +539,7 @@ for (series in list_df$code1) {
       mutate(
       values = map(
         code1,
-        un_pull_modelled,'2010','2020' )
+        un_pull_modelled,'2010','2022' )
       ) %>%
       unnest(values) %>%
       select(iso3c, date, goal, target, code, code1, description1, ind_value, ind_metadata, ind_quality) %>%
