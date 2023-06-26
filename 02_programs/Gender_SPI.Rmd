@@ -394,14 +394,36 @@ all_sdg_df <- read_csv(paste0(output_dir, "/SPI_D3_UNSD_alltier_data_5yr.csv")) 
   filter(date==upper_year) %>%
   filter(!(iso3c %in% pop_exlude_cntry)) %>%
     #collapse to country level
-  group_by(iso3c, country, goal) %>%
-  summarise(
-    availability=mean(ind_quality)
-  ) %>% 
   group_by(iso3c, country) %>%
-  summarise(availability=mean(availability))
+  summarise(
+    availability=wtd.mean(ind_quality, weight=ind_number)
+  ) 
 
 global_availability <- mean(all_sdg_df$availability)
+
+# get totals for all SDGs
+all_gender_sdg_df <- read_csv(paste0(output_dir, "/SPI_D3_UNSD_gender_data_5yr.csv")) %>%
+  filter(date==upper_year) %>%
+  filter(!(iso3c %in% pop_exlude_cntry)) %>%
+    #collapse to country level
+  group_by(iso3c, country, goal) %>%
+  summarise(
+    availability=wtd.mean(ind_quality, weight=ind_number)
+  ) 
+
+global_gender_availability <- mean(all_gender_sdg_df$availability)
+
+# get totals for all SDGs
+all_nongender_sdg_df <- read_csv(paste0(output_dir, "/SPI_D3_UNSD_nongender_data_5yr.csv")) %>%
+  filter(date==upper_year) %>%
+  filter(!(iso3c %in% pop_exlude_cntry)) %>%
+    #collapse to country level
+  group_by(iso3c, country, goal) %>%
+  summarise(
+    availability=wtd.mean(ind_quality, weight=ind_number)
+  ) 
+
+global_nongender_availability <- mean(all_nongender_sdg_df$availability)
   
 ```
 
@@ -4491,7 +4513,7 @@ write_excel_csv(table1_combined, paste(output_dir, '/table1_combined.csv',sep=""
 
 
 avail_ovl_plt_df <- read_csv(paste0(raw_dir, '/misc/SPI_index.csv')) %>%
-  filter((iso3c %in% avail_plt_df5$iso3c)) %>%
+  filter((iso3c %in% avail_SPI_df$iso3c)) %>%
   filter(date==2020) %>% #keep just most recent year
   group_by(iso3c) %>%
   slice(1) %>%
