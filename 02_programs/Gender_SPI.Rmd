@@ -2776,6 +2776,11 @@ gii_sigi_df <- readxl::read_excel(paste0(raw_dir, "/misc/GII_SIGI.xlsx")) %>%
          sigi=`SIGI 2019`)
 
 
+#read in ODIN gender indicators
+odin_gender_2022_df <- readxl::read_excel(paste0(raw_dir, "/misc/ODIN_Gender_2022.xlsx")) %>%
+  rename(iso3c=country_code) %>%
+  select(-country)
+
 #read in the data on NSO data availability
 nso_df <- read_csv(paste0(raw_dir, "/misc/NSOs gender stats content.csv"))
 
@@ -2784,6 +2789,7 @@ avail_wbstats_df <- avail_SPI_df %>%
   left_join(gii_sigi_df) %>%
   left_join(SPI_df) %>%
   left_join(wdi_df) %>%
+  left_join(odin_gender_2022_df) %>%
   mutate(outcome=IQ.SPI.OVRL,
          value=availability) %>%
   left_join(nso_df)
@@ -2791,21 +2797,24 @@ avail_wbstats_df <- avail_SPI_df %>%
 combined_df <- avail_wbstats_df 
 
 combined_df_sv <- combined_df %>%
-  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi,NY.GDP.PCAP.KD, `Amount of Gender Statistics`) %>%
+  select(iso3c, country, region, income_level, IQ.SPI.OVRL, availability, IQ.SPI.PIL3, NY.GDP.PCAP.PP.CD, SP.POP.TOTL,HD.HCI.OVRL,GE.EST,SG.LAW.INDX,gii,sigi, OGDI, NON_OGDI, ODIN,NY.GDP.PCAP.KD, `Amount of Gender Statistics`) %>%
   janitor::clean_names() %>%
   rename_with(~gsub(".","_",.x, fixed=TRUE)) 
 
-var.labels = c(IQ_SPI_OVRL="SPI Overall Score", 
+var.labels = c(iq_spi_ovrl="SPI Overall Score", 
                availability='Gender SDG Availability', 
-               IQ_SPI_PIL3 = "Overall SDG Availability (SPI Pillar 3)", 
-               NY_GDP_PCAP_PP_CD = "GDP per capita, PPP (current international $)", 
-               SP_POP_TOTL='Total Population',
-               HD_HCI_OVRL = 'HUman Capital Index',
-               GE_EST = "WGI: Governance Effectiveness",
-               SG_LAW_INDX = "Women, Business, and Law",
+               iq_spi_pil3 = "Overall SDG Availability (SPI Pillar 3)", 
+               ny_gdp_pcap_pp_cd = "GDP per capita, PPP (current international $)", 
+               sp_pop_totl='Total Population',
+               hd_hci_ovrl = 'HUman Capital Index',
+               ge_est = "WGI: Governance Effectiveness",
+               sg_law_indx = "Women, Business, and Law",
                gii ="GII",
                sigi="SIGI",
-               NY_GDP_PCAP_KD="GDP per capita (constant 2015 US$)",
+               ogdi="OGDI",
+               non_ogdi="Non-OGDI",
+               odin="ODIN",
+               ny_gdp_pcap_kd="GDP per capita (constant 2015 US$)",
                amount_of_gender_statistics = "NSO Gender Data Availability")
 
 label(combined_df_sv) = as.list(var.labels[match(names(combined_df_sv), names(var.labels))])
@@ -2842,6 +2851,92 @@ weighted_stats_reg <- combined_df %>%
 weighted_stats_reg
 
 ```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+#gender stat comparison to ODIN OGDI
+
+combined_df %>%
+  ggplot(aes(y=availability, x=OGDI)) +
+  geom_text(aes(label=iso3c,color=income_level)) + 
+  geom_smooth(method='lm') +
+  theme_spi() + 
+  xlab('ODIN OGDI Measure') +
+  ylab('Availability of Gender SDG Indicators (%)') +
+  geom_richtext(
+    aes(y = 87, x = 45,label = eq_plot_txt(combined_df, availability, OGDI,wgt=NULL), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(y=c(0,75),
+                x=c(0,100))+
+  labs(
+    title='Plot of ODIN OGDI Measure and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: OGDI measure from Open Data Watch.  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+  )
+
+
+combined_df %>%
+  filter(income_level!="High income") %>%
+  ggplot(aes(y=availability, x=OGDI)) +
+  geom_text(aes(label=iso3c,color=income_level)) + 
+  geom_smooth(method='lm') +
+  theme_spi() + 
+  xlab('ODIN OGDI Measure') +
+  ylab('Availability of Gender SDG Indicators (%)') +
+  geom_richtext(
+    aes(y = 87, x = 45,label = eq_plot_txt(combined_df %>%
+                                             filter(income_level!="High income"), availability, OGDI,wgt=NULL), hjust=0.2)
+  ) +  
+  theme(legend.position = 'bottom') +
+  expand_limits(y=c(0,75),
+                x=c(0,100))+
+  labs(
+    title='Plot of ODIN OGDI Measure and Availability of Gender SDG Indicators',
+    caption=str_wrap('Source: OGDI measure from Open Data Watch.  The availability of Gender SDG Indicators based on authors calculations based on the UN Global SDG Database.',100)
+  )
+
+gaps <- combined_df %>%
+  mutate(gap=(availability-OGDI)) %>%
+  select(iso3c, country, availability, OGDI, gap )
+
+gender_overperformers_df <- gaps %>%
+  arrange(-gap) %>%
+  head(15)
+
+gender_underperformers_df <- gaps %>%
+  arrange(gap) %>%
+  head(15)
+
+
+gender_overperformers_plot <-  gender_overperformers_df %>%
+  bind_rows(gender_underperformers_df) %>%
+  arrange(gap) 
+
+gender_overperformers_plot <- gender_overperformers_plot %>%
+  mutate(country=factor(country, levels=unique(gender_overperformers_plot$country)),
+         group=if_else(gap>=0, 'above','below')) %>%
+  ggplot(aes(x=country, y=gap, color=group)) +
+  geom_segment( aes(x=country ,xend=country, y=0, yend=gap), color="black") +
+  geom_point(size=3) +
+  scale_color_manual(name="Gender SDG Availability",
+                     labels = c("Over-performers", "Under-performers"),
+                     values = c('above'="#1A9850", 'below'="#D73027")) +
+  coord_flip() +
+  theme_spi() +
+  theme(
+    panel.grid.minor.y = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.position = 'bottom'
+  ) +
+  xlab("") +
+  ylab("Percentage Difference in SDG Availability from OGDI Score") +
+  ggtitle("Gender SDG Availability Compared to OGDI")
+#subtitle = 'Difference from Expected shown as Percent of Predicted Value')
+
+gender_overperformers_plot
+
+
+```
+
 
 ```{r spidf}
 
